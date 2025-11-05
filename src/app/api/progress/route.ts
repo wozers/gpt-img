@@ -4,6 +4,7 @@ import { createOllama } from 'ollama-ai-provider';
 import { generateText } from 'ai';
 import { Buffer } from 'buffer';
 import path from 'path';
+import { getPromptStyle, applyNegativeFilters } from '@/lib/prompt-styles';
 
 const formatCaption = (caption: string, prefix: string, suffix: string, maxChars?: number): string => {
   // remove trailing comma from prefix
@@ -57,6 +58,11 @@ export async function POST(req: NextRequest) {
   const ollamaUrl = (formData.get('ollamaUrl') as string) + '/api' || 'http://localhost:11434/api';
   const maxChars = formData.get('maxChars') ? parseInt(formData.get('maxChars') as string) : undefined;
 
+  // Get prompt style for negative filtering
+  const promptStyleId = (formData.get('promptStyleId') as string) || '';
+  const promptStyle = promptStyleId ? getPromptStyle(promptStyleId) : undefined;
+  const negativeFilters = promptStyle?.negativeFilters || [];
+
   // Create the appropriate client based on service
   let client: any;
   if (service === 'ollama') {
@@ -103,6 +109,12 @@ export async function POST(req: NextRequest) {
           });
 
           let caption = text;
+
+          // Apply negative filters to remove meta-phrases
+          if (negativeFilters.length > 0) {
+            caption = applyNegativeFilters(caption, negativeFilters);
+          }
+
           const formattedCaption = formatCaption(caption, prefix, suffix, maxChars);
           const txtFilename = `${path.parse(image.name).name}.txt`;
           controller.enqueue(`data: ${JSON.stringify({ filename: txtFilename, caption: formattedCaption })}\n\n`);

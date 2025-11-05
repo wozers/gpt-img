@@ -14,6 +14,8 @@ import {
   RefreshCwIcon,
   CheckCircleIcon,
   XCircleIcon,
+  TagIcon,
+  TypeIcon,
 } from 'lucide-react';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
@@ -184,6 +186,7 @@ export default function OllamaForm({ onSubmit, onProgress, onError }: OllamaForm
     formData.append('service', 'ollama');
     formData.append('model', data.model);
     formData.append('ollamaUrl', data.ollamaUrl || 'http://localhost:11434');
+    formData.append('promptStyleId', data.promptStyleId || '');
     if (data.maxChars) {
       formData.append('maxChars', data.maxChars.toString());
     }
@@ -338,54 +341,78 @@ export default function OllamaForm({ onSubmit, onProgress, onError }: OllamaForm
               <FormField
                 control={form.control}
                 name='promptStyleId'
-                render={({ field }) => (
-                  <FormItem>
-                    <div className='flex items-center gap-2'>
-                      <FormLabel>Caption Style Preset</FormLabel>
-                      <TooltipProvider>
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <InfoIcon className='text-muted-foreground hover:text-primary h-4 w-4 cursor-help' />
-                          </TooltipTrigger>
-                          <TooltipContent className='max-w-[300px]'>
-                            <p>
-                              Select a preset optimized for different image generation models and tagging systems. This
-                              will automatically set the system message and user prompt.
-                            </p>
-                          </TooltipContent>
-                        </Tooltip>
-                      </TooltipProvider>
-                    </div>
-                    <Select
-                      onValueChange={(value) => {
-                        field.onChange(value);
-                        const style = promptStyles.find((s) => s.id === value);
-                        if (style) {
-                          form.setValue('systemMessage', style.systemMessage);
-                          form.setValue('userPrompt', style.userPrompt);
-                          form.setValue('maxChars', style.defaultMaxChars);
-                        }
-                      }}
-                      defaultValue={field.value}
-                    >
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder='Select caption style' />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {promptStyles.map((style) => (
-                          <SelectItem key={style.id} value={style.id}>
-                            {style.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <p className='text-muted-foreground mt-1 text-xs'>
-                      {promptStyles.find((s) => s.id === field.value)?.description}
-                    </p>
-                  </FormItem>
-                )}
+                render={({ field }) => {
+                  const selectedStyle = promptStyles.find((s) => s.id === field.value);
+                  return (
+                    <FormItem>
+                      <div className='flex items-center gap-2'>
+                        <FormLabel>Caption Style Preset</FormLabel>
+                        {selectedStyle && (
+                          <Badge variant={selectedStyle.format === 'tags' ? 'default' : 'secondary'} className='text-xs'>
+                            {selectedStyle.format === 'tags' ? (
+                              <>
+                                <TagIcon className='mr-1 h-3 w-3' />
+                                Tags
+                              </>
+                            ) : (
+                              <>
+                                <TypeIcon className='mr-1 h-3 w-3' />
+                                Semantic
+                              </>
+                            )}
+                          </Badge>
+                        )}
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <InfoIcon className='text-muted-foreground hover:text-primary h-4 w-4 cursor-help' />
+                            </TooltipTrigger>
+                            <TooltipContent className='max-w-[300px]'>
+                              <p>
+                                Select a preset optimized for different models. <strong>Tags</strong> format uses
+                                comma-separated keywords (e.g., &quot;red dress, smiling, outdoor&quot;).{' '}
+                                <strong>Semantic</strong> format uses natural language phrases.
+                              </p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+                      </div>
+                      <Select
+                        onValueChange={(value) => {
+                          field.onChange(value);
+                          const style = promptStyles.find((s) => s.id === value);
+                          if (style) {
+                            form.setValue('systemMessage', style.systemMessage);
+                            form.setValue('userPrompt', style.userPrompt);
+                            form.setValue('maxChars', style.defaultMaxChars);
+                          }
+                        }}
+                        defaultValue={field.value}
+                      >
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder='Select caption style' />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {promptStyles.map((style) => (
+                            <SelectItem key={style.id} value={style.id}>
+                              <div className='flex items-center gap-2'>
+                                {style.format === 'tags' ? (
+                                  <TagIcon className='h-3 w-3' />
+                                ) : (
+                                  <TypeIcon className='h-3 w-3' />
+                                )}
+                                {style.name}
+                              </div>
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <p className='text-muted-foreground mt-1 text-xs'>{selectedStyle?.description}</p>
+                    </FormItem>
+                  );
+                }}
               />
             </div>
 
@@ -565,8 +592,9 @@ export default function OllamaForm({ onSubmit, onProgress, onError }: OllamaForm
               <CollapsibleContent className='mt-4 space-y-4'>
                 <div className='bg-muted/50 rounded-lg border p-4'>
                   <p className='text-muted-foreground text-sm'>
-                    These settings control how the AI generates captions for your images. Hover over the{' '}
-                    <InfoIcon className='inline h-3 w-3' /> icons for more details.
+                    <strong>Edit before generating:</strong> The prompts below are pre-filled by the selected style
+                    preset but can be customized. Modify the system message and user prompt to fine-tune caption
+                    generation.
                   </p>
                 </div>
 
