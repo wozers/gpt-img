@@ -24,6 +24,7 @@ import { ChevronDownIcon, ChevronUpIcon, WrenchIcon } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
+import { promptStyles, getDefaultPromptStyle } from '@/lib/prompt-styles';
 
 // Interface for server status
 interface ServerStatus {
@@ -40,6 +41,8 @@ const ollamaFormSchema = z.object({
   userPrompt: z.string().optional(),
   model: z.string(),
   ollamaUrl: z.string().optional(),
+  promptStyleId: z.string(),
+  maxChars: z.number().int().positive().optional(),
 });
 
 type OllamaFormValues = z.infer<typeof ollamaFormSchema>;
@@ -64,16 +67,19 @@ export default function OllamaForm({ onSubmit, onProgress, onError }: OllamaForm
   const [serverStatus, setServerStatus] = useState<ServerStatus>({ status: 'checking' });
   const [captionCount, setCaptionCount] = useState(0); // Track number of processed captions
 
+  const defaultStyle = getDefaultPromptStyle();
+
   const form = useForm<OllamaFormValues>({
     resolver: zodResolver(ollamaFormSchema),
     defaultValues: {
       prefix: '',
       suffix: '',
-      systemMessage:
-        'Generate a concise, yet detailed comma-separated caption. Do not use markdown. Do not have an intro or outro.',
-      userPrompt: 'Describe this image, focusing on the main elements, style, and composition.',
+      systemMessage: defaultStyle.systemMessage,
+      userPrompt: defaultStyle.userPrompt,
       model: '',
       ollamaUrl: 'http://localhost:11434',
+      promptStyleId: defaultStyle.id,
+      maxChars: defaultStyle.defaultMaxChars,
     },
   });
 
@@ -178,6 +184,9 @@ export default function OllamaForm({ onSubmit, onProgress, onError }: OllamaForm
     formData.append('service', 'ollama');
     formData.append('model', data.model);
     formData.append('ollamaUrl', data.ollamaUrl || 'http://localhost:11434');
+    if (data.maxChars) {
+      formData.append('maxChars', data.maxChars.toString());
+    }
 
     try {
       const response = await fetch('/api/progress', {
@@ -319,6 +328,105 @@ export default function OllamaForm({ onSubmit, onProgress, onError }: OllamaForm
                       <Input {...field} placeholder='Optional suffix...' />
                     </FormControl>
                     <p className='text-muted-foreground mt-1 text-xs'>Example: &quot;high quality 8k&quot;</p>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            <div className='mt-4'>
+              <FormField
+                control={form.control}
+                name='promptStyleId'
+                render={({ field }) => (
+                  <FormItem>
+                    <div className='flex items-center gap-2'>
+                      <FormLabel>Caption Style Preset</FormLabel>
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <InfoIcon className='text-muted-foreground hover:text-primary h-4 w-4 cursor-help' />
+                          </TooltipTrigger>
+                          <TooltipContent className='max-w-[300px]'>
+                            <p>
+                              Select a preset optimized for different image generation models and tagging systems. This
+                              will automatically set the system message and user prompt.
+                            </p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                    </div>
+                    <Select
+                      onValueChange={(value) => {
+                        field.onChange(value);
+                        const style = promptStyles.find((s) => s.id === value);
+                        if (style) {
+                          form.setValue('systemMessage', style.systemMessage);
+                          form.setValue('userPrompt', style.userPrompt);
+                          form.setValue('maxChars', style.defaultMaxChars);
+                        }
+                      }}
+                      defaultValue={field.value}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder='Select caption style' />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {promptStyles.map((style) => (
+                          <SelectItem key={style.id} value={style.id}>
+                            {style.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <p className='text-muted-foreground mt-1 text-xs'>
+                      {promptStyles.find((s) => s.id === field.value)?.description}
+                    </p>
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            <div className='mt-4'>
+              <FormField
+                control={form.control}
+                name='maxChars'
+                render={({ field }) => (
+                  <FormItem>
+                    <div className='flex items-center gap-2'>
+                      <FormLabel>Max Caption Length (characters)</FormLabel>
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <InfoIcon className='text-muted-foreground hover:text-primary h-4 w-4 cursor-help' />
+                          </TooltipTrigger>
+                          <TooltipContent className='max-w-[300px]'>
+                            <p>
+                              Maximum number of characters for generated captions. Leave empty for no limit. Captions
+                              exceeding this will be truncated.
+                            </p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                    </div>
+                    <FormControl>
+                      <Input
+                        type='number'
+                        min='50'
+                        step='50'
+                        placeholder='e.g., 500'
+                        value={field.value || ''}
+                        onChange={(e) => {
+                          const value = e.target.value ? parseInt(e.target.value, 10) : undefined;
+                          field.onChange(value);
+                        }}
+                      />
+                    </FormControl>
+                    <p className='text-muted-foreground mt-1 text-xs'>
+                      Recommended: 300-700 characters depending on caption style
+                    </p>
                     <FormMessage />
                   </FormItem>
                 )}

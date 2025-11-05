@@ -5,7 +5,7 @@ import { generateText } from 'ai';
 import { Buffer } from 'buffer';
 import path from 'path';
 
-const formatCaption = (caption: string, prefix: string, suffix: string): string => {
+const formatCaption = (caption: string, prefix: string, suffix: string, maxChars?: number): string => {
   // remove trailing comma from prefix
   const trimmedPrefix = prefix.trim().replace(/,$/, '');
   // remove leading comma from suffix
@@ -21,7 +21,20 @@ const formatCaption = (caption: string, prefix: string, suffix: string): string 
   const suffixPart = trimmedSuffix ? `, ${trimmedSuffix}` : '';
 
   // remove newlines and multiple spaces
-  return `${prefixPart}${caption}${suffixPart}`.replace(/\n/g, ' ').replace(/\s+/g, ' ').trim();
+  let formatted = `${prefixPart}${caption}${suffixPart}`.replace(/\n/g, ' ').replace(/\s+/g, ' ').trim();
+
+  // Apply character limit if specified
+  if (maxChars && formatted.length > maxChars) {
+    formatted = formatted.substring(0, maxChars).trim();
+    // Try to end at a word boundary
+    const lastSpace = formatted.lastIndexOf(' ');
+    if (lastSpace > maxChars * 0.8) {
+      // Only trim to word boundary if we're not losing more than 20% of content
+      formatted = formatted.substring(0, lastSpace).trim();
+    }
+  }
+
+  return formatted;
 };
 
 export async function POST(req: NextRequest) {
@@ -42,6 +55,7 @@ export async function POST(req: NextRequest) {
   const detail = (formData.get('detail') as string) || 'auto';
   const apiKey = (formData.get('apiKey') as string) || process.env['OPENAI_API_KEY'];
   const ollamaUrl = (formData.get('ollamaUrl') as string) + '/api' || 'http://localhost:11434/api';
+  const maxChars = formData.get('maxChars') ? parseInt(formData.get('maxChars') as string) : undefined;
 
   // Create the appropriate client based on service
   let client: any;
@@ -89,7 +103,7 @@ export async function POST(req: NextRequest) {
           });
 
           let caption = text;
-          const formattedCaption = formatCaption(caption, prefix, suffix);
+          const formattedCaption = formatCaption(caption, prefix, suffix, maxChars);
           const txtFilename = `${path.parse(image.name).name}.txt`;
           controller.enqueue(`data: ${JSON.stringify({ filename: txtFilename, caption: formattedCaption })}\n\n`);
         } catch (error) {

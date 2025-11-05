@@ -16,6 +16,7 @@ import { ChevronDownIcon, ChevronUpIcon, WrenchIcon } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import APIKeyManager from '@/components/api-key-manager';
+import { promptStyles, getDefaultPromptStyle } from '@/lib/prompt-styles';
 
 const openaiFormSchema = z.object({
   images: z.array(z.instanceof(File)).nonempty('At least one image is required.'),
@@ -25,6 +26,8 @@ const openaiFormSchema = z.object({
   userPrompt: z.string().optional(),
   model: z.string(),
   detail: z.enum(['auto', 'low', 'high']).optional(),
+  promptStyleId: z.string(),
+  maxChars: z.number().int().positive().optional(),
 });
 
 type OpenAIFormValues = z.infer<typeof openaiFormSchema>;
@@ -47,16 +50,19 @@ export default function OpenAIForm({ initialApiKey, onApiKeyChange, onSubmit, on
     onApiKeyChange(apiKey);
   }, [apiKey, onApiKeyChange]);
 
+  const defaultStyle = getDefaultPromptStyle();
+
   const form = useForm<OpenAIFormValues>({
     resolver: zodResolver(openaiFormSchema),
     defaultValues: {
       prefix: '',
       suffix: '',
-      systemMessage:
-        'Generate a concise, yet detailed comma-separated caption. Do not use markdown. Do not have an intro or outro.',
-      userPrompt: 'Describe this image, focusing on the main elements, style, and composition.',
+      systemMessage: defaultStyle.systemMessage,
+      userPrompt: defaultStyle.userPrompt,
       model: 'gpt-5-nano',
       detail: 'auto',
+      promptStyleId: defaultStyle.id,
+      maxChars: defaultStyle.defaultMaxChars,
     },
   });
 
@@ -86,6 +92,9 @@ export default function OpenAIForm({ initialApiKey, onApiKeyChange, onSubmit, on
     formData.append('model', data.model || '');
     formData.append('detail', data.detail || 'auto');
     formData.append('apiKey', apiKey);
+    if (data.maxChars) {
+      formData.append('maxChars', data.maxChars.toString());
+    }
 
     try {
       const response = await fetch('/api/progress', {
@@ -169,6 +178,105 @@ export default function OpenAIForm({ initialApiKey, onApiKeyChange, onSubmit, on
                         <SelectItem value='gpt-5'>GPT-5 (Better Quality)</SelectItem>
                       </SelectContent>
                     </Select>
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            <div className='mb-4'>
+              <FormField
+                control={form.control}
+                name='promptStyleId'
+                render={({ field }) => (
+                  <FormItem>
+                    <div className='flex items-center gap-2'>
+                      <FormLabel>Caption Style Preset</FormLabel>
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <InfoIcon className='text-muted-foreground hover:text-primary h-4 w-4 cursor-help' />
+                          </TooltipTrigger>
+                          <TooltipContent className='max-w-[300px]'>
+                            <p>
+                              Select a preset optimized for different image generation models and tagging systems. This
+                              will automatically set the system message and user prompt.
+                            </p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                    </div>
+                    <Select
+                      onValueChange={(value) => {
+                        field.onChange(value);
+                        const style = promptStyles.find((s) => s.id === value);
+                        if (style) {
+                          form.setValue('systemMessage', style.systemMessage);
+                          form.setValue('userPrompt', style.userPrompt);
+                          form.setValue('maxChars', style.defaultMaxChars);
+                        }
+                      }}
+                      defaultValue={field.value}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder='Select caption style' />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {promptStyles.map((style) => (
+                          <SelectItem key={style.id} value={style.id}>
+                            {style.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <p className='text-muted-foreground mt-1 text-xs'>
+                      {promptStyles.find((s) => s.id === field.value)?.description}
+                    </p>
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            <div className='mb-4'>
+              <FormField
+                control={form.control}
+                name='maxChars'
+                render={({ field }) => (
+                  <FormItem>
+                    <div className='flex items-center gap-2'>
+                      <FormLabel>Max Caption Length (characters)</FormLabel>
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <InfoIcon className='text-muted-foreground hover:text-primary h-4 w-4 cursor-help' />
+                          </TooltipTrigger>
+                          <TooltipContent className='max-w-[300px]'>
+                            <p>
+                              Maximum number of characters for generated captions. Leave empty for no limit. Captions
+                              exceeding this will be truncated.
+                            </p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                    </div>
+                    <FormControl>
+                      <Input
+                        type='number'
+                        min='50'
+                        step='50'
+                        placeholder='e.g., 500'
+                        value={field.value || ''}
+                        onChange={(e) => {
+                          const value = e.target.value ? parseInt(e.target.value, 10) : undefined;
+                          field.onChange(value);
+                        }}
+                      />
+                    </FormControl>
+                    <p className='text-muted-foreground mt-1 text-xs'>
+                      Recommended: 300-700 characters depending on caption style
+                    </p>
+                    <FormMessage />
                   </FormItem>
                 )}
               />
