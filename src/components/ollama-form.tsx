@@ -18,10 +18,12 @@ import {
   TypeIcon,
   ServerIcon,
   SparklesIcon,
+  CopyIcon,
+  EyeIcon,
 } from 'lucide-react';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Textarea } from '@/components/ui/textarea';
 import { ChevronDownIcon, ChevronUpIcon, WrenchIcon } from 'lucide-react';
@@ -65,11 +67,18 @@ interface OllamaFormProps {
 
 export default function OllamaForm({ onSubmit, onProgress, onError }: OllamaFormProps) {
   const [loading, setLoading] = useState(false);
-  const [isOpen, setIsOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(true); // Advanced settings open by default
   const [ollamaModels, setOllamaModels] = useState<OllamaModel[]>([]);
   const [ollamaLoading, setOllamaLoading] = useState(false);
   const [serverStatus, setServerStatus] = useState<ServerStatus>({ status: 'checking' });
   const [captionCount, setCaptionCount] = useState(0); // Track number of processed captions
+  const [copiedField, setCopiedField] = useState<string | null>(null);
+
+  const copyToClipboard = async (text: string, field: string) => {
+    await navigator.clipboard.writeText(text);
+    setCopiedField(field);
+    setTimeout(() => setCopiedField(null), 2000);
+  };
 
   const defaultStyle = getDefaultPromptStyle();
 
@@ -250,8 +259,18 @@ export default function OllamaForm({ onSubmit, onProgress, onError }: OllamaForm
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(handleSubmit)} className='space-y-6'>
-        <Card className='border-2'>
-          <CardContent className='space-y-6 pt-6'>
+        <Card className='overflow-hidden border-2 bg-gradient-to-br from-background via-background to-primary/5 shadow-xl transition-all duration-300 hover:shadow-2xl'>
+          <CardHeader className='bg-gradient-to-r from-primary/10 via-primary/5 to-background pb-4'>
+            <CardTitle className='flex items-center gap-3'>
+              <div className='rounded-lg bg-primary/10 p-2'>
+                <ServerIcon className='text-primary h-5 w-5' />
+              </div>
+              <span className='bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent'>
+                Ollama Configuration
+              </span>
+            </CardTitle>
+          </CardHeader>
+          <CardContent className='space-y-6'>
             {/* Image Upload Section */}
             <div className='rounded-lg border-2 border-dashed p-6'>
               <FormField
@@ -330,20 +349,24 @@ export default function OllamaForm({ onSubmit, onProgress, onError }: OllamaForm
             </div>
 
             {/* Caption Style Preset - Prominent Section */}
-            <div className='bg-primary/5 rounded-lg border-2 border-primary/20 p-4'>
+            <div className='group relative overflow-hidden rounded-xl border-2 border-primary/30 bg-gradient-to-br from-primary/10 via-primary/5 to-background p-5 shadow-lg transition-all duration-300 hover:border-primary/50 hover:shadow-xl'>
+              {/* Animated background gradient */}
+              <div className='absolute inset-0 bg-gradient-to-r from-primary/5 via-transparent to-primary/5 opacity-0 transition-opacity duration-300 group-hover:opacity-100' />
+
               <FormField
                 control={form.control}
                 name='promptStyleId'
                 render={({ field }) => {
                   const selectedStyle = promptStyles.find((s) => s.id === field.value);
                   return (
-                    <FormItem>
-                      <div className='flex items-center gap-2 mb-2'>
-                        <FormLabel className='text-base font-semibold'>Caption Style Preset</FormLabel>
+                    <FormItem className='relative'>
+                      <div className='mb-3 flex items-center gap-2'>
+                        <EyeIcon className='text-primary h-5 w-5' />
+                        <FormLabel className='text-lg font-bold'>Caption Style Preset</FormLabel>
                         {selectedStyle && (
                           <Badge
                             variant={selectedStyle.format === 'tags' ? 'default' : 'secondary'}
-                            className='text-xs font-medium'
+                            className='animate-in fade-in zoom-in text-xs font-semibold shadow-md duration-300'
                           >
                             {selectedStyle.format === 'tags' ? (
                               <>
@@ -361,12 +384,13 @@ export default function OllamaForm({ onSubmit, onProgress, onError }: OllamaForm
                         <TooltipProvider>
                           <Tooltip>
                             <TooltipTrigger asChild>
-                              <InfoIcon className='text-muted-foreground hover:text-primary h-4 w-4 cursor-help' />
+                              <InfoIcon className='text-muted-foreground hover:text-primary h-4 w-4 cursor-help transition-colors' />
                             </TooltipTrigger>
-                            <TooltipContent className='max-w-[300px]'>
+                            <TooltipContent className='max-w-[320px] text-sm'>
                               <p>
-                                Select a preset optimized for different models. <strong>Tags</strong> format uses
-                                comma-separated keywords. <strong>Semantic</strong> format uses natural language.
+                                <strong>Tags</strong> format: comma-separated keywords
+                                <br />
+                                <strong>Semantic</strong> format: natural language
                               </p>
                             </TooltipContent>
                           </Tooltip>
@@ -578,21 +602,36 @@ export default function OllamaForm({ onSubmit, onProgress, onError }: OllamaForm
 
             <Collapsible open={isOpen} onOpenChange={setIsOpen} className='mt-4'>
               <CollapsibleTrigger asChild>
-                <Button variant='outline' className='flex w-full items-center justify-between'>
+                <Button
+                  variant='outline'
+                  className='group flex w-full items-center justify-between border-2 bg-gradient-to-r from-muted/50 to-muted/30 transition-all duration-300 hover:border-primary/50 hover:from-primary/10 hover:to-primary/5'
+                >
                   <div className='flex items-center gap-2'>
-                    <WrenchIcon className='h-4 w-4' />
-                    <span>Advanced Settings</span>
+                    <WrenchIcon className='h-5 w-5 transition-transform duration-300 group-hover:rotate-12' />
+                    <span className='font-semibold'>Advanced Settings</span>
+                    <Badge variant='secondary' className='text-xs'>
+                      Editable
+                    </Badge>
                   </div>
-                  {isOpen ? <ChevronUpIcon className='h-4 w-4' /> : <ChevronDownIcon className='h-4 w-4' />}
+                  {isOpen ? (
+                    <ChevronUpIcon className='h-5 w-5 transition-transform duration-300' />
+                  ) : (
+                    <ChevronDownIcon className='h-5 w-5 transition-transform duration-300' />
+                  )}
                 </Button>
               </CollapsibleTrigger>
-              <CollapsibleContent className='mt-4 space-y-4'>
-                <div className='bg-muted/50 rounded-lg border p-4'>
-                  <p className='text-muted-foreground text-sm'>
-                    <strong>Edit before generating:</strong> The prompts below are pre-filled by the selected style
-                    preset but can be customized. Modify the system message and user prompt to fine-tune caption
-                    generation.
-                  </p>
+              <CollapsibleContent className='animate-in slide-in-from-top mt-4 space-y-6 duration-300'>
+                <div className='rounded-xl border-2 border-blue-500/20 bg-gradient-to-r from-blue-500/10 via-blue-500/5 to-background p-4 shadow-md'>
+                  <div className='flex items-start gap-3'>
+                    <InfoIcon className='text-blue-500 mt-0.5 h-5 w-5 flex-shrink-0' />
+                    <div>
+                      <p className='text-sm font-semibold'>✏️ Fully Customizable</p>
+                      <p className='text-muted-foreground mt-1 text-sm leading-relaxed'>
+                        The prompts below are pre-filled by your selected style preset but can be edited before
+                        generation. Fine-tune the system message and user prompt to match your exact needs.
+                      </p>
+                    </div>
+                  </div>
                 </div>
 
                 <FormField
@@ -600,29 +639,44 @@ export default function OllamaForm({ onSubmit, onProgress, onError }: OllamaForm
                   name='systemMessage'
                   render={({ field }) => (
                     <FormItem>
-                      <div className='flex items-center gap-2'>
-                        <FormLabel>System Message</FormLabel>
-                        <TooltipProvider>
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <InfoIcon className='text-muted-foreground hover:text-primary h-4 w-4 cursor-help' />
-                            </TooltipTrigger>
-                            <TooltipContent className='max-w-[300px]'>
-                              <p>The system message sets the overall behavior and format of the AI.</p>
-                            </TooltipContent>
-                          </Tooltip>
-                        </TooltipProvider>
+                      <div className='flex items-center justify-between'>
+                        <div className='flex items-center gap-2'>
+                          <FormLabel className='text-base font-semibold'>System Message</FormLabel>
+                          <TooltipProvider>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <InfoIcon className='text-muted-foreground hover:text-primary h-4 w-4 cursor-help' />
+                              </TooltipTrigger>
+                              <TooltipContent className='max-w-[300px]'>
+                                <p>Sets the overall behavior and format of the AI's caption generation.</p>
+                              </TooltipContent>
+                            </Tooltip>
+                          </TooltipProvider>
+                        </div>
+                        <Button
+                          type='button'
+                          variant='ghost'
+                          size='sm'
+                          onClick={() => copyToClipboard(field.value || '', 'system')}
+                          className='h-8 gap-2'
+                        >
+                          <CopyIcon className='h-3.5 w-3.5' />
+                          {copiedField === 'system' ? 'Copied!' : 'Copy'}
+                        </Button>
                       </div>
                       <FormControl>
                         <Textarea
                           {...field}
                           placeholder='Enter system message...'
-                          className='min-h-[80px] resize-y font-mono text-sm'
+                          className='min-h-[100px] resize-y rounded-lg border-2 font-mono text-sm transition-all duration-200 focus:border-primary/50 focus:ring-2 focus:ring-primary/20'
                         />
                       </FormControl>
-                      <p className='text-muted-foreground mt-1 text-xs'>
-                        Defines how the AI should approach the caption generation task
-                      </p>
+                      <div className='flex items-center justify-between'>
+                        <p className='text-muted-foreground text-xs'>
+                          Defines how the AI should approach the caption generation task
+                        </p>
+                        <p className='text-muted-foreground text-xs'>{field.value?.length || 0} characters</p>
+                      </div>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -633,32 +687,47 @@ export default function OllamaForm({ onSubmit, onProgress, onError }: OllamaForm
                   name='userPrompt'
                   render={({ field }) => (
                     <FormItem>
-                      <div className='flex items-center gap-2'>
-                        <FormLabel>User Prompt</FormLabel>
-                        <TooltipProvider>
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <InfoIcon className='text-muted-foreground hover:text-primary h-4 w-4 cursor-help' />
-                            </TooltipTrigger>
-                            <TooltipContent className='max-w-[300px]'>
-                              <p>
-                                The user prompt is sent along with each image. It specifies what aspects of the image
-                                you want the AI to focus on.
-                              </p>
-                            </TooltipContent>
-                          </Tooltip>
-                        </TooltipProvider>
+                      <div className='flex items-center justify-between'>
+                        <div className='flex items-center gap-2'>
+                          <FormLabel className='text-base font-semibold'>User Prompt</FormLabel>
+                          <TooltipProvider>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <InfoIcon className='text-muted-foreground hover:text-primary h-4 w-4 cursor-help' />
+                              </TooltipTrigger>
+                              <TooltipContent className='max-w-[300px]'>
+                                <p>
+                                  The user prompt is sent along with each image. It specifies what aspects of the image
+                                  you want the AI to focus on.
+                                </p>
+                              </TooltipContent>
+                            </Tooltip>
+                          </TooltipProvider>
+                        </div>
+                        <Button
+                          type='button'
+                          variant='ghost'
+                          size='sm'
+                          onClick={() => copyToClipboard(field.value || '', 'user')}
+                          className='h-8 gap-2'
+                        >
+                          <CopyIcon className='h-3.5 w-3.5' />
+                          {copiedField === 'user' ? 'Copied!' : 'Copy'}
+                        </Button>
                       </div>
                       <FormControl>
                         <Textarea
                           {...field}
                           placeholder='Enter user prompt...'
-                          className='min-h-[80px] resize-y font-mono text-sm'
+                          className='min-h-[80px] resize-y rounded-lg border-2 font-mono text-sm transition-all duration-200 focus:border-primary/50 focus:ring-2 focus:ring-primary/20'
                         />
                       </FormControl>
-                      <p className='text-muted-foreground mt-1 text-xs'>
-                        Specific instructions for analyzing each image
-                      </p>
+                      <div className='flex items-center justify-between'>
+                        <p className='text-muted-foreground text-xs'>
+                          Specific instructions for analyzing each image
+                        </p>
+                        <p className='text-muted-foreground text-xs'>{field.value?.length || 0} characters</p>
+                      </div>
                       <FormMessage />
                     </FormItem>
                   )}
