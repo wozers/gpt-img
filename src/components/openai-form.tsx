@@ -6,7 +6,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Loader2Icon, ImageIcon, FileTextIcon, InfoIcon, KeyIcon, TagIcon, TypeIcon } from 'lucide-react';
+import { Loader2Icon, ImageIcon, FileTextIcon, InfoIcon, KeyIcon, TagIcon, TypeIcon, SparklesIcon } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
@@ -153,14 +153,17 @@ export default function OpenAIForm({ initialApiKey, onApiKeyChange, onSubmit, on
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(handleSubmit)} className='space-y-6'>
-        <Card>
-          <CardHeader className='pb-0'>
-            <CardTitle className='flex items-center justify-between text-lg'>
-              <div />
+        <Card className='border-2'>
+          <CardHeader className='pb-4'>
+            <CardTitle className='flex items-center justify-between'>
+              <div className='flex items-center gap-2'>
+                <SparklesIcon className='text-primary h-5 w-5' />
+                <span>OpenAI Configuration</span>
+              </div>
               <APIKeyManager onApiKeyChange={setApiKey} />
             </CardTitle>
           </CardHeader>
-          <CardContent className='pt-4'>
+          <CardContent className='space-y-6'>
             <div className='mb-4'>
               <FormField
                 control={form.control}
@@ -185,7 +188,8 @@ export default function OpenAIForm({ initialApiKey, onApiKeyChange, onSubmit, on
               />
             </div>
 
-            <div className='mb-4'>
+            {/* Caption Style Preset - Prominent Section */}
+            <div className='bg-primary/5 rounded-lg border-2 border-primary/20 p-4'>
               <FormField
                 control={form.control}
                 name='promptStyleId'
@@ -193,10 +197,13 @@ export default function OpenAIForm({ initialApiKey, onApiKeyChange, onSubmit, on
                   const selectedStyle = promptStyles.find((s) => s.id === field.value);
                   return (
                     <FormItem>
-                      <div className='flex items-center gap-2'>
-                        <FormLabel>Caption Style Preset</FormLabel>
+                      <div className='flex items-center gap-2 mb-2'>
+                        <FormLabel className='text-base font-semibold'>Caption Style Preset</FormLabel>
                         {selectedStyle && (
-                          <Badge variant={selectedStyle.format === 'tags' ? 'default' : 'secondary'} className='text-xs'>
+                          <Badge
+                            variant={selectedStyle.format === 'tags' ? 'default' : 'secondary'}
+                            className='text-xs font-medium'
+                          >
                             {selectedStyle.format === 'tags' ? (
                               <>
                                 <TagIcon className='mr-1 h-3 w-3' />
@@ -218,8 +225,7 @@ export default function OpenAIForm({ initialApiKey, onApiKeyChange, onSubmit, on
                             <TooltipContent className='max-w-[300px]'>
                               <p>
                                 Select a preset optimized for different models. <strong>Tags</strong> format uses
-                                comma-separated keywords (e.g., &quot;red dress, smiling, outdoor&quot;).{' '}
-                                <strong>Semantic</strong> format uses natural language phrases.
+                                comma-separated keywords. <strong>Semantic</strong> format uses natural language.
                               </p>
                             </TooltipContent>
                           </Tooltip>
@@ -238,26 +244,28 @@ export default function OpenAIForm({ initialApiKey, onApiKeyChange, onSubmit, on
                         defaultValue={field.value}
                       >
                         <FormControl>
-                          <SelectTrigger>
+                          <SelectTrigger className='h-12 text-base font-medium'>
                             <SelectValue placeholder='Select caption style' />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
                           {promptStyles.map((style) => (
-                            <SelectItem key={style.id} value={style.id}>
+                            <SelectItem key={style.id} value={style.id} className='cursor-pointer py-3'>
                               <div className='flex items-center gap-2'>
                                 {style.format === 'tags' ? (
-                                  <TagIcon className='h-3 w-3' />
+                                  <TagIcon className='h-4 w-4' />
                                 ) : (
-                                  <TypeIcon className='h-3 w-3' />
+                                  <TypeIcon className='h-4 w-4' />
                                 )}
-                                {style.name}
+                                <span className='font-medium'>{style.name}</span>
                               </div>
                             </SelectItem>
                           ))}
                         </SelectContent>
                       </Select>
-                      <p className='text-muted-foreground mt-1 text-xs'>{selectedStyle?.description}</p>
+                      {selectedStyle && (
+                        <p className='text-muted-foreground mt-2 text-sm leading-relaxed'>{selectedStyle.description}</p>
+                      )}
                     </FormItem>
                   );
                 }}
@@ -308,31 +316,35 @@ export default function OpenAIForm({ initialApiKey, onApiKeyChange, onSubmit, on
               />
             </div>
 
-            <FormField
-              control={form.control}
-              name='images'
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className='flex items-center gap-2'>
-                    <ImageIcon className='h-4 w-4' />
-                    Select Images
-                  </FormLabel>
-                  <FormControl>
-                    <Input
-                      type='file'
-                      accept='image/*'
-                      className='file:bg-primary file:text-primary-foreground hover:file:bg-primary/90 h-14 p-2 file:mr-4 file:h-full file:rounded-lg file:px-4 hover:cursor-pointer hover:file:cursor-pointer'
-                      multiple
-                      onChange={(e) => {
-                        const files = e.target.files ? Array.from(e.target.files) : [];
-                        field.onChange(files);
-                      }}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            {/* Image Upload Section */}
+            <div className='rounded-lg border-2 border-dashed p-6'>
+              <FormField
+                control={form.control}
+                name='images'
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className='flex items-center gap-2 text-base font-semibold'>
+                      <ImageIcon className='h-5 w-5' />
+                      Select Images
+                    </FormLabel>
+                    <FormControl>
+                      <Input
+                        type='file'
+                        accept='image/*'
+                        className='file:bg-primary file:text-primary-foreground hover:file:bg-primary/90 h-16 cursor-pointer p-2 text-base file:mr-4 file:h-full file:rounded-lg file:px-6 file:font-medium hover:file:cursor-pointer'
+                        multiple
+                        onChange={(e) => {
+                          const files = e.target.files ? Array.from(e.target.files) : [];
+                          field.onChange(files);
+                        }}
+                      />
+                    </FormControl>
+                    <p className='text-muted-foreground mt-2 text-sm'>Upload one or multiple images for captioning</p>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
 
             {!apiKey && (
               <Alert variant='destructive' className='mt-4'>
@@ -343,65 +355,51 @@ export default function OpenAIForm({ initialApiKey, onApiKeyChange, onSubmit, on
               </Alert>
             )}
 
-            <div className='mt-4 flex flex-col gap-4 sm:flex-row'>
-              <FormField
-                control={form.control}
-                name='prefix'
-                render={({ field }) => (
-                  <FormItem className='flex-1'>
-                    <div className='flex items-center gap-2'>
+            {/* Prefix/Suffix Section */}
+            <div className='space-y-4'>
+              <div className='flex items-center gap-2'>
+                <h3 className='text-base font-semibold'>Custom Text (Optional)</h3>
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <InfoIcon className='text-muted-foreground hover:text-primary h-4 w-4 cursor-help' />
+                    </TooltipTrigger>
+                    <TooltipContent className='max-w-[300px]'>
+                      <p>Add consistent text to the beginning (prefix) or end (suffix) of all captions</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              </div>
+              <div className='grid gap-4 sm:grid-cols-2'>
+                <FormField
+                  control={form.control}
+                  name='prefix'
+                  render={({ field }) => (
+                    <FormItem>
                       <FormLabel>Caption Prefix</FormLabel>
-                      <TooltipProvider>
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <InfoIcon className='text-muted-foreground hover:text-primary h-4 w-4 cursor-help' />
-                          </TooltipTrigger>
-                          <TooltipContent className='max-w-[300px]'>
-                            <p>
-                              Text to add at the beginning of each caption. Commas and spaces will be handled
-                              automatically, so you can just enter the text.
-                            </p>
-                          </TooltipContent>
-                        </Tooltip>
-                      </TooltipProvider>
-                    </div>
-                    <FormControl>
-                      <Input {...field} placeholder='Optional prefix...' />
-                    </FormControl>
-                    <p className='text-muted-foreground mt-1 text-xs'>Example: &quot;CYBRPNK style&quot;</p>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name='suffix'
-                render={({ field }) => (
-                  <FormItem className='flex-1'>
-                    <div className='flex items-center gap-2'>
+                      <FormControl>
+                        <Input {...field} placeholder='e.g., CYBRPNK style' className='h-11' />
+                      </FormControl>
+                      <p className='text-muted-foreground mt-1 text-xs'>Added to start of each caption</p>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name='suffix'
+                  render={({ field }) => (
+                    <FormItem>
                       <FormLabel>Caption Suffix</FormLabel>
-                      <TooltipProvider>
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <InfoIcon className='text-muted-foreground hover:text-primary h-4 w-4 cursor-help' />
-                          </TooltipTrigger>
-                          <TooltipContent className='max-w-[300px]'>
-                            <p>
-                              Text to add at the end of each caption. Commas and spaces will be handled automatically,
-                              so you can just enter the text.
-                            </p>
-                          </TooltipContent>
-                        </Tooltip>
-                      </TooltipProvider>
-                    </div>
-                    <FormControl>
-                      <Input {...field} placeholder='Optional suffix...' />
-                    </FormControl>
-                    <p className='text-muted-foreground mt-1 text-xs'>Example: &quot;high quality 8k&quot;</p>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                      <FormControl>
+                        <Input {...field} placeholder='e.g., high quality 8k' className='h-11' />
+                      </FormControl>
+                      <p className='text-muted-foreground mt-1 text-xs'>Added to end of each caption</p>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
             </div>
 
             <FormField
@@ -532,20 +530,25 @@ export default function OpenAIForm({ initialApiKey, onApiKeyChange, onSubmit, on
             </Collapsible>
           </CardContent>
         </Card>
-        <Button type='submit' className='w-full' size='lg' disabled={loading || !apiKey}>
+        <Button
+          type='submit'
+          className='h-14 w-full text-base font-semibold shadow-lg transition-all hover:shadow-xl'
+          size='lg'
+          disabled={loading || !apiKey}
+        >
           {loading ? (
             <>
-              <Loader2Icon className='mr-2 h-5 w-5 animate-spin' />
+              <Loader2Icon className='mr-2 h-6 w-6 animate-spin' />
               Processing Images... {captionCount > 0 ? `(${captionCount} done)` : ''}
             </>
           ) : !apiKey ? (
             <>
-              <KeyIcon className='mr-2 h-5 w-5' />
+              <KeyIcon className='mr-2 h-6 w-6' />
               API Key Required
             </>
           ) : (
             <>
-              <FileTextIcon className='mr-2 h-5 w-5' />
+              <SparklesIcon className='mr-2 h-6 w-6' />
               Generate Captions
             </>
           )}

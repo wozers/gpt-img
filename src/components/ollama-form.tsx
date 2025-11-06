@@ -16,6 +16,8 @@ import {
   XCircleIcon,
   TagIcon,
   TypeIcon,
+  ServerIcon,
+  SparklesIcon,
 } from 'lucide-react';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
@@ -248,96 +250,87 @@ export default function OllamaForm({ onSubmit, onProgress, onError }: OllamaForm
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(handleSubmit)} className='space-y-6'>
-        <Card>
-          <CardContent className='pt-6'>
-            <FormField
-              control={form.control}
-              name='images'
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className='flex items-center gap-2'>
-                    <ImageIcon className='h-4 w-4' />
-                    Select Images
-                  </FormLabel>
-                  <FormControl>
-                    <Input
-                      type='file'
-                      accept='image/*'
-                      className='file:bg-primary file:text-primary-foreground hover:file:bg-primary/90 h-14 p-2 file:mr-4 file:h-full file:rounded-lg file:px-4 hover:cursor-pointer hover:file:cursor-pointer'
-                      multiple
-                      onChange={(e) => {
-                        const files = e.target.files ? Array.from(e.target.files) : [];
-                        field.onChange(files);
-                      }}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <div className='mt-4 flex flex-col gap-4 sm:flex-row'>
+        <Card className='border-2'>
+          <CardContent className='space-y-6 pt-6'>
+            {/* Image Upload Section */}
+            <div className='rounded-lg border-2 border-dashed p-6'>
               <FormField
                 control={form.control}
-                name='prefix'
+                name='images'
                 render={({ field }) => (
-                  <FormItem className='flex-1'>
-                    <div className='flex items-center gap-2'>
-                      <FormLabel>Caption Prefix</FormLabel>
-                      <TooltipProvider>
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <InfoIcon className='text-muted-foreground hover:text-primary h-4 w-4 cursor-help' />
-                          </TooltipTrigger>
-                          <TooltipContent className='max-w-[300px]'>
-                            <p>
-                              Text to add at the beginning of each caption. Commas and spaces will be handled
-                              automatically, so you can just enter the text.
-                            </p>
-                          </TooltipContent>
-                        </Tooltip>
-                      </TooltipProvider>
-                    </div>
+                  <FormItem>
+                    <FormLabel className='flex items-center gap-2 text-base font-semibold'>
+                      <ImageIcon className='h-5 w-5' />
+                      Select Images
+                    </FormLabel>
                     <FormControl>
-                      <Input {...field} placeholder='Optional prefix...' />
+                      <Input
+                        type='file'
+                        accept='image/*'
+                        className='file:bg-primary file:text-primary-foreground hover:file:bg-primary/90 h-16 cursor-pointer p-2 text-base file:mr-4 file:h-full file:rounded-lg file:px-6 file:font-medium hover:file:cursor-pointer'
+                        multiple
+                        onChange={(e) => {
+                          const files = e.target.files ? Array.from(e.target.files) : [];
+                          field.onChange(files);
+                        }}
+                      />
                     </FormControl>
-                    <p className='text-muted-foreground mt-1 text-xs'>Example: &quot;CYBRPNK style&quot;</p>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name='suffix'
-                render={({ field }) => (
-                  <FormItem className='flex-1'>
-                    <div className='flex items-center gap-2'>
-                      <FormLabel>Caption Suffix</FormLabel>
-                      <TooltipProvider>
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <InfoIcon className='text-muted-foreground hover:text-primary h-4 w-4 cursor-help' />
-                          </TooltipTrigger>
-                          <TooltipContent className='max-w-[300px]'>
-                            <p>
-                              Text to add at the end of each caption. Commas and spaces will be handled automatically,
-                              so you can just enter the text.
-                            </p>
-                          </TooltipContent>
-                        </Tooltip>
-                      </TooltipProvider>
-                    </div>
-                    <FormControl>
-                      <Input {...field} placeholder='Optional suffix...' />
-                    </FormControl>
-                    <p className='text-muted-foreground mt-1 text-xs'>Example: &quot;high quality 8k&quot;</p>
+                    <p className='text-muted-foreground mt-2 text-sm'>Upload one or multiple images for captioning</p>
                     <FormMessage />
                   </FormItem>
                 )}
               />
             </div>
 
-            <div className='mt-4'>
+            {/* Prefix/Suffix Section */}
+            <div className='space-y-4'>
+              <div className='flex items-center gap-2'>
+                <h3 className='text-base font-semibold'>Custom Text (Optional)</h3>
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <InfoIcon className='text-muted-foreground hover:text-primary h-4 w-4 cursor-help' />
+                    </TooltipTrigger>
+                    <TooltipContent className='max-w-[300px]'>
+                      <p>Add consistent text to the beginning (prefix) or end (suffix) of all captions</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              </div>
+              <div className='grid gap-4 sm:grid-cols-2'>
+                <FormField
+                  control={form.control}
+                  name='prefix'
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Caption Prefix</FormLabel>
+                      <FormControl>
+                        <Input {...field} placeholder='e.g., CYBRPNK style' className='h-11' />
+                      </FormControl>
+                      <p className='text-muted-foreground mt-1 text-xs'>Added to start of each caption</p>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name='suffix'
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Caption Suffix</FormLabel>
+                      <FormControl>
+                        <Input {...field} placeholder='e.g., high quality 8k' className='h-11' />
+                      </FormControl>
+                      <p className='text-muted-foreground mt-1 text-xs'>Added to end of each caption</p>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+            </div>
+
+            {/* Caption Style Preset - Prominent Section */}
+            <div className='bg-primary/5 rounded-lg border-2 border-primary/20 p-4'>
               <FormField
                 control={form.control}
                 name='promptStyleId'
@@ -345,10 +338,13 @@ export default function OllamaForm({ onSubmit, onProgress, onError }: OllamaForm
                   const selectedStyle = promptStyles.find((s) => s.id === field.value);
                   return (
                     <FormItem>
-                      <div className='flex items-center gap-2'>
-                        <FormLabel>Caption Style Preset</FormLabel>
+                      <div className='flex items-center gap-2 mb-2'>
+                        <FormLabel className='text-base font-semibold'>Caption Style Preset</FormLabel>
                         {selectedStyle && (
-                          <Badge variant={selectedStyle.format === 'tags' ? 'default' : 'secondary'} className='text-xs'>
+                          <Badge
+                            variant={selectedStyle.format === 'tags' ? 'default' : 'secondary'}
+                            className='text-xs font-medium'
+                          >
                             {selectedStyle.format === 'tags' ? (
                               <>
                                 <TagIcon className='mr-1 h-3 w-3' />
@@ -370,8 +366,7 @@ export default function OllamaForm({ onSubmit, onProgress, onError }: OllamaForm
                             <TooltipContent className='max-w-[300px]'>
                               <p>
                                 Select a preset optimized for different models. <strong>Tags</strong> format uses
-                                comma-separated keywords (e.g., &quot;red dress, smiling, outdoor&quot;).{' '}
-                                <strong>Semantic</strong> format uses natural language phrases.
+                                comma-separated keywords. <strong>Semantic</strong> format uses natural language.
                               </p>
                             </TooltipContent>
                           </Tooltip>
@@ -390,26 +385,28 @@ export default function OllamaForm({ onSubmit, onProgress, onError }: OllamaForm
                         defaultValue={field.value}
                       >
                         <FormControl>
-                          <SelectTrigger>
+                          <SelectTrigger className='h-12 text-base font-medium'>
                             <SelectValue placeholder='Select caption style' />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
                           {promptStyles.map((style) => (
-                            <SelectItem key={style.id} value={style.id}>
+                            <SelectItem key={style.id} value={style.id} className='cursor-pointer py-3'>
                               <div className='flex items-center gap-2'>
                                 {style.format === 'tags' ? (
-                                  <TagIcon className='h-3 w-3' />
+                                  <TagIcon className='h-4 w-4' />
                                 ) : (
-                                  <TypeIcon className='h-3 w-3' />
+                                  <TypeIcon className='h-4 w-4' />
                                 )}
-                                {style.name}
+                                <span className='font-medium'>{style.name}</span>
                               </div>
                             </SelectItem>
                           ))}
                         </SelectContent>
                       </Select>
-                      <p className='text-muted-foreground mt-1 text-xs'>{selectedStyle?.description}</p>
+                      {selectedStyle && (
+                        <p className='text-muted-foreground mt-2 text-sm leading-relaxed'>{selectedStyle.description}</p>
+                      )}
                     </FormItem>
                   );
                 }}
@@ -672,28 +669,28 @@ export default function OllamaForm({ onSubmit, onProgress, onError }: OllamaForm
         </Card>
         <Button
           type='submit'
-          className='w-full'
+          className='h-14 w-full text-base font-semibold shadow-lg transition-all hover:shadow-xl'
           size='lg'
           disabled={loading || !form.getValues('model') || serverStatus.status !== 'running'}
         >
           {loading ? (
             <>
-              <Loader2Icon className='mr-2 h-5 w-5 animate-spin' />
+              <Loader2Icon className='mr-2 h-6 w-6 animate-spin' />
               Processing Images... {captionCount > 0 ? `(${captionCount} done)` : ''}
             </>
           ) : serverStatus.status !== 'running' ? (
             <>
-              <XCircleIcon className='mr-2 h-5 w-5' />
+              <XCircleIcon className='mr-2 h-6 w-6' />
               Server Not Connected
             </>
           ) : !form.getValues('model') ? (
             <>
-              <ImageIcon className='mr-2 h-5 w-5' />
+              <ServerIcon className='mr-2 h-6 w-6' />
               Select a Model First
             </>
           ) : (
             <>
-              <FileTextIcon className='mr-2 h-5 w-5' />
+              <SparklesIcon className='mr-2 h-6 w-6' />
               Generate Captions
             </>
           )}
