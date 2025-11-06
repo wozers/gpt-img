@@ -13,7 +13,7 @@ A web app that generates AI-powered image captions optimized for image generatio
 - **API Key Management**: Securely store OpenAI keys in-app
 
 ### Advanced Caption Control
-- **7 Prompt Style Presets**: Optimized templates for different use cases and models
+- **9 Prompt Style Presets**: Optimized templates for different use cases and models (including specialized character LoRA presets)
 - **Tags vs Semantic Formats**: Choose between tag-based or natural language captions
 - **Character Limits**: Control caption length with smart word-boundary truncation
 - **Negative Phrase Filtering**: Automatically removes meta-phrases like "this image shows"
@@ -22,17 +22,29 @@ A web app that generates AI-powered image captions optimized for image generatio
 
 ## 🎨 Prompt Style Presets
 
-The app includes 7 carefully crafted presets optimized for different models and training goals:
+The app includes 9 carefully crafted presets optimized for different models and training goals:
 
 ### 📌 Tags Format (Keyword-Based)
 
 Perfect for tag-based training systems that expect comma-separated keywords:
 
 #### **SDXL (Tags)**
-- **Use for**: Stable Diffusion XL training
+- **Use for**: Stable Diffusion XL training (general purpose)
 - **Format**: Comma-separated descriptors
 - **Output**: `subject and pose, clothing items, environment type, lighting condition, camera angle, art medium, quality level`
 - **Character limit**: 450
+
+#### **Character SDXL** ⭐
+- **Use for**: SDXL character LoRA training with permanent feature preservation
+- **Format**: Natural language (60-90 words, optimized for SDXL)
+- **Special features**:
+  - Starts with `[TRIGGER]` placeholder for your trigger word
+  - Prioritizes permanent features (tattoos with exact text, accessories)
+  - Balances detail with SDXL's shorter optimal caption length
+  - Consistent description of defining characteristics
+- **Output example**: `[TRIGGER] woman, photograph, head and shoulders portrait showing 'KARMA' text tattoo on front of neck, wearing gold necklace with red heart pendant and coral-red off-shoulder top, dark hair with caramel highlights in loose waves, direct gaze at camera against plain beige wall, harsh frontal flash lighting, centered medium close-up`
+- **Character limit**: 500
+- **Best for**: SDXL character LoRAs where tattoos and permanent features must be preserved
 
 #### **Booru (Tags)**
 - **Use for**: Booru-style tagging systems
@@ -51,10 +63,23 @@ Perfect for tag-based training systems that expect comma-separated keywords:
 Perfect for models that benefit from descriptive, flowing text:
 
 #### **FLUX (Semantic)**
-- **Use for**: FLUX model training
+- **Use for**: FLUX model training (general purpose)
 - **Format**: Natural language descriptions
 - **Output**: `A woman in a red dress standing outdoors, soft natural lighting, warm color palette, professional photography style`
 - **Character limit**: 500
+
+#### **Character FLUX** ⭐
+- **Use for**: FLUX character LoRA training with tattoos, text, and permanent features
+- **Format**: Comprehensive natural language (100-150 words)
+- **Special features**:
+  - Starts with `[TRIGGER]` placeholder for your trigger word
+  - Transcribes exact text from tattoos (e.g., "'KARMA' text tattoo on neck")
+  - Describes permanent features consistently (tattoos, jewelry, piercings)
+  - Exhaustive detail on pose, anatomy, and environment
+  - Prevents tattoo/text smudging in training
+- **Output example**: `[TRIGGER] woman, high-quality photograph, head and shoulders portrait showing 'KARMA' text tattoo in dark capital letters on front of neck positioned horizontally below chin, wearing delicate gold chain necklace with small heart-shaped red gemstone pendant, dressed in bright coral-red off-shoulder fitted top...` (continues for 100-150 words)
+- **Character limit**: 750
+- **Best for**: Character LoRAs where fine details like tattoos, text, and accessories must be accurately preserved
 
 #### **SeedDream (Semantic)**
 - **Use for**: Artistic image generation
@@ -177,6 +202,11 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 
 ### Choosing the Right Preset
 
+**For character LoRA training (with tattoos, permanent features):**
+- Use **Character FLUX** ⭐ for FLUX character LoRAs with fine detail preservation (100-150 words)
+- Use **Character SDXL** ⭐ for SDXL character LoRAs with permanent feature focus (60-90 words)
+- Both automatically include `[TRIGGER]` placeholder and transcribe text from tattoos
+
 **For tag-based training (SDXL, Booru systems):**
 - Use **SDXL (Tags)** for Stable Diffusion XL
 - Use **Booru (Tags)** for Booru-style datasets
@@ -188,6 +218,29 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 - Use **Human Character (Semantic)** for detailed human pose and anatomy descriptions
 
 **Not sure?** Start with **FLUX (Semantic)** - it's versatile and works well for most use cases.
+
+### Understanding [TRIGGER] Placeholder
+
+**Character FLUX** and **Character SDXL** presets automatically include a `[TRIGGER]` placeholder at the start of every caption. This is essential for character LoRA training:
+
+**What is [TRIGGER]?**
+- A placeholder you replace with your actual trigger word
+- Used to activate your character LoRA during inference
+- Should be a unique word not commonly found in training data
+
+**How to use it:**
+1. Generate captions with Character FLUX or Character SDXL preset
+2. Download the ZIP file
+3. Use find-and-replace to change `[TRIGGER]` to your chosen trigger word
+   - Example: Replace `[TRIGGER]` with `ohwx woman` or `TOK` or your character's name
+
+**Example:**
+```
+Before: [TRIGGER] woman, photograph, 'KARMA' text tattoo on neck...
+After:  ohwx woman, photograph, 'KARMA' text tattoo on neck...
+```
+
+**Why?** The trigger word teaches the model to recognize your specific character. Using a consistent trigger across all captions ensures the model learns this association.
 
 ### Advanced: Editing Prompts
 
@@ -239,16 +292,33 @@ camera angle and composition.
 **For best results:**
 - Use **GPT-5** or **GPT-5-mini** for highest quality captions
 - Enable **High detail** for images with fine details
+- Use **Character FLUX/SDXL** presets for character LoRAs (prevents tattoo/text smudging)
 - Use **Human Character** preset when training on people (better hand and pose accuracy)
 - Review a few captions before processing large batches
 
 ### Character Limits
 
 **Recommended limits by use case:**
+- **Character FLUX**: 700-750 characters (100-150 words, exhaustive detail)
+- **Character SDXL**: 450-500 characters (60-90 words, prioritized detail)
 - **FLUX training**: 400-500 characters (balanced detail)
 - **SDXL training**: 300-450 characters (tag-focused)
 - **Booru datasets**: 250-400 characters (concise tags)
 - **Human characters**: 600-700 characters (detailed descriptions)
+
+### Character LoRA Training Tips
+
+**For tattoo/text preservation:**
+- Use **Character FLUX** or **Character SDXL** presets specifically
+- These presets transcribe exact text from tattoos consistently
+- Higher network rank recommended: 64-128 (FLUX), 32-64 (SDXL)
+- Train text encoders: both CLIP and T5 at 1e-5 (FLUX), TE1 at 3e-6 (SDXL)
+- 200 images × 15-20 repeats = 3000-4000 optimal steps
+
+**Replace [TRIGGER] placeholder:**
+- After downloading, find-and-replace `[TRIGGER]` with your trigger word
+- Examples: `ohwx woman`, `TOK`, unique character name
+- Consistent trigger word across all captions is critical
 
 ### Prefix/Suffix Usage
 

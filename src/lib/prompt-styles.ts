@@ -46,6 +46,18 @@ export const promptStyles: PromptStyle[] = [
     negativeFilters: commonMetaPhrases,
   },
   {
+    id: 'character-flux',
+    name: 'Character FLUX',
+    description: 'Comprehensive character LoRA training with tattoo/text preservation (100-150 words)',
+    format: 'semantic',
+    systemMessage:
+      'You are a specialized caption generator for Flux LoRa character training. Generate comprehensive natural language descriptions that preserve fine details like text tattoos, accessories, and defining features.\n\nCRITICAL RULES:\n1. Start every caption with [TRIGGER] placeholder\n2. ALWAYS describe permanent features consistently: tattoos (including exact text if visible), distinctive markings, accessories worn in multiple images\n3. Caption both permanent features AND variables (clothing, environment, pose)\n4. For text tattoos: transcribe the exact text and describe placement\n5. Be exhaustive about visible details - Flux\'s T5 encoder handles 200+ tokens well\n6. Use flowing natural language, but be highly specific\n7. Target 100-150 words for character LoRas\n\nSTRUCTURE (as natural prose): [TRIGGER] + medium + detailed permanent features (tattoos with text, consistent accessories) + current clothing details + pose/action + environment description + lighting + camera angle\n\nTEXT TATTOOS: Always format as: "[exact text] tattoo on [location]"\nEXAMPLE: "\'KARMA\' text tattoo in capital letters on front of neck below chin"',
+    userPrompt:
+      'Describe this image in comprehensive natural language for Flux character LoRa training, preserving all fine details.\n\nFollow this structure as flowing prose (100-150 words):\n\n1. Start with [TRIGGER]\n2. Identify medium (photograph/digital art)\n3. COMPREHENSIVELY describe all visible tattoos:\n   - For text tattoos: transcribe exact text in quotes, specify exact placement\n   - For image tattoos: describe subject, style, and precise location\n   - Include visibility (partially visible, fully visible, obscured)\n4. Describe any consistent accessories (jewelry, piercings)\n5. Describe current variable clothing with specific colors, styles, and fit\n6. Describe the action, pose, and body positioning in detail\n7. Describe environment with specific elements and spatial relationships\n8. Describe lighting: direction, quality (harsh/soft), color temperature, shadows\n9. Describe camera: angle, distance, framing, perspective\n\nBe exhaustively detailed on permanent features (tattoos, jewelry) and precise about variables. Flux handles long captions well - use the full 150 words.',
+    defaultMaxChars: 750,
+    negativeFilters: [...commonMetaPhrases, 'appears to be', 'seems to be', 'looks like', 'might be'],
+  },
+  {
     id: 'sdxl-tags',
     name: 'SDXL (Tags)',
     description: 'Tag-based format with comma-separated descriptors',
@@ -56,6 +68,18 @@ export const promptStyles: PromptStyle[] = [
       'Tag: subject and pose, clothing items, environment type, lighting condition, camera angle, shot distance, art medium (photograph/digital art/painting), quality level, specific details. Use comma-separated tags.',
     defaultMaxChars: 450,
     negativeFilters: commonMetaPhrases,
+  },
+  {
+    id: 'character-sdxl',
+    name: 'Character SDXL',
+    description: 'Character LoRA training with permanent feature focus (60-90 words)',
+    format: 'semantic',
+    systemMessage:
+      'You are a specialized caption generator for SDXL LoRa character training. Generate detailed natural language descriptions focusing on permanent features and key variables.\n\nCRITICAL RULES:\n1. Start every caption with [TRIGGER] placeholder\n2. ALWAYS describe permanent tattoos consistently, including text content\n3. Prioritize important details - SDXL prefers 60-90 words\n4. Use complete sentences with natural flow\n5. For text tattoos: include exact text in quotes and location\n6. Balance permanent features with variable elements (clothing, setting, pose)\n\nSTRUCTURE (as natural prose): [TRIGGER] + medium + key permanent features (tattoos with text) + clothing + pose + environment + lighting + camera angle',
+    userPrompt:
+      'Describe this image in detailed natural language for SDXL character LoRa training (60-90 words).\n\nStructure as flowing prose:\n\n1. Start with [TRIGGER]\n2. Describe visible tattoos including exact text for text tattoos (e.g., "\'KARMA\' tattoo on neck")\n3. Describe key accessories (jewelry)\n4. Describe clothing with colors and style\n5. Describe pose/action\n6. Describe environment briefly\n7. Describe lighting and camera angle\n\nPrioritize tattoo details and then most visually important elements. Keep total under 90 words while maintaining natural sentence flow.',
+    defaultMaxChars: 500,
+    negativeFilters: [...commonMetaPhrases, 'appears to be', 'seems to be', 'looks like', 'might be'],
   },
   {
     id: 'booru-tags',
