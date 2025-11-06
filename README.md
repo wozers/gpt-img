@@ -47,16 +47,20 @@ Perfect for tag-based training systems that expect comma-separated keywords:
 - **Best for**: SDXL character LoRAs where tattoos and permanent features must be preserved
 
 #### **Booru (Tags)**
-- **Use for**: Booru-style tagging systems
-- **Format**: Underscored lowercase tags
-- **Output**: `1girl, long_hair, blue_eyes, red_dress, smiling, outdoor, high_quality`
+- **Use for**: Booru-style tagging systems (Danbooru, WD14, DeepDanbooru)
+- **Format**: Underscored lowercase tags with strict ordering
+- **Tag order**: subject count (1girl/1boy/1person) → anatomy/body parts → hair → eyes → clothing → action/pose → camera view → environment → lighting → style
+- **Output**: `1girl, upper_body, long_brown_hair, blue_eyes, red_dress, smiling, medium_shot, outdoor, natural_lighting, anime_style`
 - **Character limit**: 400
+- **Special**: Follows Danbooru/WD14 conventions, avoids non-standard vocab, no artist tag hallucination
 
 #### **Nano Banana (Tags)**
-- **Use for**: Models that need ultra-concise descriptions
-- **Format**: Minimal keyword tags
-- **Output**: `woman, portrait, natural light, casual, smiling`
-- **Character limit**: 250
+- **Use for**: Fast LoRA training with minimal token overhead
+- **Format**: Ultra-minimal 8-12 keyword tokens
+- **Structure**: subject, action, environment, lighting, style term
+- **Output**: `woman, sitting, coffee shop, window light, candid photography` (8 tokens)
+- **Character limit**: 150
+- **Special**: No sentences, no prompt weights, no negative prompts - pure minimal keywords
 
 ### 💬 Semantic Format (Natural Language)
 
@@ -82,10 +86,12 @@ Perfect for models that benefit from descriptive, flowing text:
 - **Best for**: Character LoRAs where fine details like tattoos, text, and accessories must be accurately preserved
 
 #### **SeedDream (Semantic)**
-- **Use for**: Artistic image generation
-- **Format**: Artistic, evocative descriptions
-- **Output**: `Ethereal portrait bathed in golden hour light, delicate color harmonies, dreamy atmospheric quality, fine artistic rendering`
-- **Character limit**: 550
+- **Use for**: SeedDream 4.0 artistic image generation
+- **Format**: Natural language, 25-45 words (1-2 sentences)
+- **Includes**: Subject + action, composition/lens perspective, lighting + color palette, stylistic intent/genre
+- **Output**: `Portrait of a woman in soft window light, shallow depth of field focusing on her contemplative expression, warm golden tones with muted shadows, cinematic documentary photography style.` (32 words)
+- **Character limit**: 300
+- **Special**: Evocative but concrete language, emphasizes mood and art direction, no tag spam
 
 #### **Human Character (Semantic)**
 - **Use for**: Training on human subjects with detailed pose and anatomy
@@ -302,8 +308,10 @@ camera angle and composition.
 - **Character FLUX**: 700-750 characters (100-150 words, exhaustive detail)
 - **Character SDXL**: 450-500 characters (60-90 words, prioritized detail)
 - **FLUX training**: 400-500 characters (balanced detail)
+- **SeedDream**: 250-300 characters (25-45 words, 1-2 sentences)
 - **SDXL training**: 300-450 characters (tag-focused)
-- **Booru datasets**: 250-400 characters (concise tags)
+- **Booru datasets**: 300-400 characters (structured tag ordering)
+- **Nano Banana**: 100-150 characters (8-12 tokens only)
 - **Human characters**: 600-700 characters (detailed descriptions)
 
 ### Character LoRA Training Tips

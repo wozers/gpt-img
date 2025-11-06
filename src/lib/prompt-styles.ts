@@ -84,37 +84,37 @@ export const promptStyles: PromptStyle[] = [
   {
     id: 'booru-tags',
     name: 'Booru (Tags)',
-    description: 'Booru-style underscored tags',
+    description: 'Booru-style underscored tags following Danbooru/WD14 conventions',
     format: 'tags',
     systemMessage:
-      'Generate Booru-style tags. Use underscored lowercase keywords separated by commas. Start with character count (1girl, 2boys, etc.), then appearance, clothing, pose, setting, art_style, quality. No natural language or meta-phrases.',
+      'You generate booru-style tags. Output one line with lowercase tags separated by commas. Use underscores for multi-word tags. Order: subject count first (1girl, 1boy, 1person, 2girls, etc.), then anatomy or body parts visible, hair color and length, eye color, clothing items, actions or pose, camera view, environment, lighting, style. Avoid adjectives that are not part of common booru vocabulary. Do not invent artist tags. No sentences, no natural language.',
     userPrompt:
-      'Tag in Booru format: character_count, hair_color, eye_color, clothing_items, body_pose, facial_expression, background_type, art_style, quality_level. Use underscored lowercase tags.',
+      'Generate one booru tag line for this image. Lowercase, comma separated, use underscores for multi-word tags. Start with subject count (1girl, 1boy, or 1person). Then anatomy/body parts visible, hair details, eye color, clothing items, action/pose, camera view (close-up, medium_shot, full_body, etc.), environment, lighting, art style. Follow Danbooru/WD14 tag conventions. No sentences.',
     defaultMaxChars: 400,
     negativeFilters: commonMetaPhrases,
   },
   {
     id: 'seeddream-semantic',
     name: 'SeedDream (Semantic)',
-    description: 'Artistic, flowing descriptions with aesthetic focus',
+    description: 'Natural language 25-45 words with composition and mood focus',
     format: 'semantic',
     systemMessage:
-      'Create artistic captions for SeedDream. Emphasize aesthetic qualities, artistic technique, mood, and visual atmosphere. Use descriptive, evocative language. No meta-commentary or markdown.',
+      'You generate SeedDream-style semantic captions. Output one to two English sentences, 25–45 words total. Use evocative but concrete language. Always include subject and action, composition and lens or perspective, lighting and color palette, and stylistic intent or genre. Keep it readable, no tag spam. Emphasize mood and art direction since SeedDream supports rich natural language. No markdown, no meta-phrases.',
     userPrompt:
-      'Describe artistically: medium and technique, color harmony and palette, lighting and atmosphere, emotional mood, composition and flow, textural details, aesthetic qualities. Use evocative, flowing phrases.',
-    defaultMaxChars: 550,
+      'Create a SeedDream semantic caption. One or two sentences, 25–45 words total. Include: subject and action, composition or lens perspective, lighting and color palette, and stylistic intent or genre. Use natural, flowing language. No tag lists, no bullet points. Be evocative but concrete.',
+    defaultMaxChars: 300,
     negativeFilters: commonMetaPhrases,
   },
   {
     id: 'nano-banana-tags',
     name: 'Nano Banana (Tags)',
-    description: 'Ultra-concise keyword tags',
+    description: 'Ultra-minimal 8-12 keyword tokens',
     format: 'tags',
     systemMessage:
-      'Generate ultra-concise tags for Nano Banana. Use minimal keywords only. Focus on essential visual elements. Comma-separated, no filler words or meta-phrases.',
+      'You generate ultra-concise tag keywords. Output one line with 8–12 comma-separated tokens. Only the most essential subject, action, environment, lighting, and one style term. No sentences, no weights, no negatives. Keep it minimal and focused.',
     userPrompt:
-      'List key elements only: subject, colors, lighting, setting, objects, style. Maximum brevity. Single word or two-word tags.',
-    defaultMaxChars: 250,
+      'Produce one ultra-short keyword line for this image. 8–12 comma-separated tokens that cover: subject, action, environment, lighting, and one style term. Maximum brevity. No full sentences, no prompt weights, no negative prompts.',
+    defaultMaxChars: 150,
     negativeFilters: commonMetaPhrases,
   },
   {
