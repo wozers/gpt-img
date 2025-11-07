@@ -15,7 +15,7 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/component
 import { Textarea } from '@/components/ui/textarea';
 import { ChevronDownIcon, ChevronUpIcon, WrenchIcon } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectSeparator, SelectTrigger, SelectValue } from '@/components/ui/select';
 import APIKeyManager from '@/components/api-key-manager';
 import { promptStyles, getDefaultPromptStyle } from '@/lib/prompt-styles';
 
@@ -67,7 +67,7 @@ export default function OpenAIForm({ initialApiKey, onApiKeyChange, onSubmit, on
       suffix: '',
       systemMessage: defaultStyle.systemMessage,
       userPrompt: defaultStyle.userPrompt,
-      model: 'gpt-5-nano',
+      model: 'gpt-4o',
       detail: 'auto',
       promptStyleId: defaultStyle.id,
       maxChars: defaultStyle.defaultMaxChars,
@@ -189,9 +189,29 @@ export default function OpenAIForm({ initialApiKey, onApiKeyChange, onSubmit, on
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value='gpt-5-nano'>GPT-5-nano (Faster/Cheaper)</SelectItem>
-                        <SelectItem value='gpt-5-mini'>GPT-5-mini (Balanced)</SelectItem>
-                        <SelectItem value='gpt-5'>GPT-5 (Better Quality)</SelectItem>
+                        <SelectGroup>
+                          <SelectLabel>GPT-4o Series (Recommended)</SelectLabel>
+                          <SelectItem value='gpt-4o'>GPT-4o - Latest, multimodal, less restrictive</SelectItem>
+                          <SelectItem value='gpt-4o-mini'>GPT-4o Mini - Fast, efficient, cost-effective</SelectItem>
+                        </SelectGroup>
+                        <SelectSeparator />
+                        <SelectGroup>
+                          <SelectLabel>GPT-4 Turbo Series</SelectLabel>
+                          <SelectItem value='gpt-4-turbo'>GPT-4 Turbo - Powerful vision analysis</SelectItem>
+                          <SelectItem value='gpt-4-turbo-2024-04-09'>GPT-4 Turbo (Apr 2024) - Specific snapshot</SelectItem>
+                        </SelectGroup>
+                        <SelectSeparator />
+                        <SelectGroup>
+                          <SelectLabel>Legacy Models</SelectLabel>
+                          <SelectItem value='gpt-4-vision-preview'>GPT-4 Vision - Stable older model</SelectItem>
+                        </SelectGroup>
+                        <SelectSeparator />
+                        <SelectGroup>
+                          <SelectLabel>GPT-5 Series (If Available)</SelectLabel>
+                          <SelectItem value='gpt-5-nano'>GPT-5-nano - Fastest tier</SelectItem>
+                          <SelectItem value='gpt-5-mini'>GPT-5-mini - Balanced tier</SelectItem>
+                          <SelectItem value='gpt-5'>GPT-5 - Premium tier</SelectItem>
+                        </SelectGroup>
                       </SelectContent>
                     </Select>
                   </FormItem>
