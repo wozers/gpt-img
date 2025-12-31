@@ -176,22 +176,25 @@ export default function OpenAIForm({ initialApiKey, onApiKeyChange, onSubmit, on
                           <TooltipTrigger asChild>
                             <InfoIcon className='text-muted-foreground hover:text-primary h-4 w-4 cursor-help' />
                           </TooltipTrigger>
-                          <TooltipContent className='max-w-[400px]'>
-                            <p className='mb-2 font-semibold'>Choose a captioning style:</p>
+                          <TooltipContent className='max-w-[450px]'>
+                            <p className='mb-2 font-semibold'>Choose LoRA training caption style:</p>
                             <ul className='space-y-1 text-xs'>
                               <li>
-                                <strong>Default:</strong> Standard captions for most models
+                                <strong>Default:</strong> Standard captions (not optimized for Z-IMAGE)
                               </li>
                               <li>
-                                <strong>Z-IMAGE General:</strong> Detailed 80-250 word natural language descriptions for
-                                Z-IMAGE/Turbo
+                                <strong>Z-IMAGE Character (Trigger Only):</strong> Single trigger word - best for character
+                                LoRAs
                               </li>
                               <li>
-                                <strong>Z-IMAGE Person:</strong> Specialized for person/portrait training with explicit
-                                details
+                                <strong>Z-IMAGE Character (Trigger + Context):</strong> Trigger + minimal context to exclude
+                                background
                               </li>
                               <li>
-                                <strong>Z-IMAGE LoRA Simple:</strong> Simplified captions for LoRA training
+                                <strong>Z-IMAGE Style (Caption-Only):</strong> Neutral descriptions without style keywords
+                              </li>
+                              <li>
+                                <strong>Z-IMAGE Concept:</strong> For specific objects/props with detailed descriptions
                               </li>
                             </ul>
                           </TooltipContent>
