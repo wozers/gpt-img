@@ -24,6 +24,7 @@ import { ChevronDownIcon, ChevronUpIcon, WrenchIcon } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
+import { captionTemplates, getTemplateById } from '@/lib/caption-templates';
 
 // Interface for server status
 interface ServerStatus {
@@ -40,6 +41,7 @@ const ollamaFormSchema = z.object({
   userPrompt: z.string().optional(),
   model: z.string(),
   ollamaUrl: z.string().optional(),
+  template: z.string().optional(),
 });
 
 type OllamaFormValues = z.infer<typeof ollamaFormSchema>;
@@ -74,8 +76,19 @@ export default function OllamaForm({ onSubmit, onProgress, onError }: OllamaForm
       userPrompt: 'Describe this image, focusing on the main elements, style, and composition.',
       model: '',
       ollamaUrl: 'http://localhost:11434',
+      template: 'default-general',
     },
   });
+
+  // Handler for template changes
+  const handleTemplateChange = (templateId: string) => {
+    const template = getTemplateById(templateId);
+    if (template) {
+      form.setValue('template', templateId);
+      form.setValue('systemMessage', template.systemMessage);
+      form.setValue('userPrompt', template.userPrompt);
+    }
+  };
 
   const ollamaUrl = form.watch('ollamaUrl');
 
@@ -238,6 +251,63 @@ export default function OllamaForm({ onSubmit, onProgress, onError }: OllamaForm
       <form onSubmit={form.handleSubmit(handleSubmit)} className='space-y-6'>
         <Card>
           <CardContent className='pt-6'>
+            <div className='mb-4'>
+              <FormField
+                control={form.control}
+                name='template'
+                render={({ field }) => (
+                  <FormItem>
+                    <div className='flex items-center gap-2'>
+                      <FormLabel>Caption Template</FormLabel>
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <InfoIcon className='text-muted-foreground hover:text-primary h-4 w-4 cursor-help' />
+                          </TooltipTrigger>
+                          <TooltipContent className='max-w-[400px]'>
+                            <p className='mb-2 font-semibold'>Choose a captioning style:</p>
+                            <ul className='space-y-1 text-xs'>
+                              <li>
+                                <strong>Default:</strong> Standard captions for most models
+                              </li>
+                              <li>
+                                <strong>Z-IMAGE General:</strong> Detailed 80-250 word natural language descriptions for
+                                Z-IMAGE/Turbo
+                              </li>
+                              <li>
+                                <strong>Z-IMAGE Person:</strong> Specialized for person/portrait training with explicit
+                                details
+                              </li>
+                              <li>
+                                <strong>Z-IMAGE LoRA Simple:</strong> Simplified captions for LoRA training
+                              </li>
+                            </ul>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                    </div>
+                    <Select onValueChange={handleTemplateChange} defaultValue={field.value}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder='Select template' />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {captionTemplates.map((template) => (
+                          <SelectItem key={template.id} value={template.id}>
+                            {template.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <p className='text-muted-foreground mt-1 text-xs'>
+                      {field.value && getTemplateById(field.value)?.description}
+                    </p>
+                  </FormItem>
+                )}
+              />
+            </div>
+
             <FormField
               control={form.control}
               name='images'
