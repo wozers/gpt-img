@@ -176,25 +176,31 @@ export default function OpenAIForm({ initialApiKey, onApiKeyChange, onSubmit, on
                           <TooltipTrigger asChild>
                             <InfoIcon className='text-muted-foreground hover:text-primary h-4 w-4 cursor-help' />
                           </TooltipTrigger>
-                          <TooltipContent className='max-w-[450px]'>
+                          <TooltipContent className='max-w-[500px]'>
                             <p className='mb-2 font-semibold'>Choose LoRA training caption style:</p>
+                            <p className='mb-2 text-xs italic'>
+                              💡 For Z-IMAGE templates: Put your trigger word in &quot;Caption Prefix&quot; below
+                              (e.g., &quot;j0hnd0e&quot; or &quot;retro_phone&quot;). Use the SAME trigger word for all
+                              images of the same character/concept.
+                            </p>
                             <ul className='space-y-1 text-xs'>
                               <li>
                                 <strong>Default:</strong> Standard captions (not optimized for Z-IMAGE)
                               </li>
                               <li>
-                                <strong>Z-IMAGE Character (Trigger Only):</strong> Single trigger word - best for character
-                                LoRAs
+                                <strong>Z-IMAGE Character (Trigger Only):</strong> Caption will be empty - trigger word
+                                only (best for characters)
                               </li>
                               <li>
-                                <strong>Z-IMAGE Character (Trigger + Context):</strong> Trigger + minimal context to exclude
-                                background
+                                <strong>Z-IMAGE Character (Trigger + Context):</strong> Caption describes background/props
+                                to exclude
                               </li>
                               <li>
-                                <strong>Z-IMAGE Style (Caption-Only):</strong> Neutral descriptions without style keywords
+                                <strong>Z-IMAGE Style:</strong> Neutral descriptions without style keywords (no trigger
+                                needed)
                               </li>
                               <li>
-                                <strong>Z-IMAGE Concept:</strong> For specific objects/props with detailed descriptions
+                                <strong>Z-IMAGE Concept:</strong> Detailed object descriptions (trigger word in prefix)
                               </li>
                             </ul>
                           </TooltipContent>
@@ -295,19 +301,25 @@ export default function OpenAIForm({ initialApiKey, onApiKeyChange, onSubmit, on
                           <TooltipTrigger asChild>
                             <InfoIcon className='text-muted-foreground hover:text-primary h-4 w-4 cursor-help' />
                           </TooltipTrigger>
-                          <TooltipContent className='max-w-[300px]'>
-                            <p>
+                          <TooltipContent className='max-w-[350px]'>
+                            <p className='mb-2'>
                               Text to add at the beginning of each caption. Commas and spaces will be handled
-                              automatically, so you can just enter the text.
+                              automatically.
+                            </p>
+                            <p className='text-xs font-semibold'>
+                              💡 For Z-IMAGE LoRA training: Use this field for your trigger word (e.g.,
+                              &quot;j0hnd0e&quot;, &quot;retro_phone&quot;). Same trigger for all images!
                             </p>
                           </TooltipContent>
                         </Tooltip>
                       </TooltipProvider>
                     </div>
                     <FormControl>
-                      <Input {...field} placeholder='Optional prefix...' />
+                      <Input {...field} placeholder='Optional prefix (or trigger word for Z-IMAGE LoRAs)...' />
                     </FormControl>
-                    <p className='text-muted-foreground mt-1 text-xs'>Example: &quot;CYBRPNK style&quot;</p>
+                    <p className='text-muted-foreground mt-1 text-xs'>
+                      General: &quot;CYBRPNK style&quot; | Z-IMAGE LoRA: &quot;j0hnd0e&quot;
+                    </p>
                     <FormMessage />
                   </FormItem>
                 )}

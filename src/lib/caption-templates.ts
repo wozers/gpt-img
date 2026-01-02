@@ -32,22 +32,15 @@ export const captionTemplates: CaptionTemplate[] = [
   {
     id: 'z-image-character-trigger',
     name: 'Z-IMAGE Character LoRA (Trigger Only)',
-    description: 'Single trigger word - focuses 100% training energy on character features (recommended)',
+    description: 'Use Caption Prefix for trigger word - caption will be empty (recommended for character LoRAs)',
     systemMessage:
-      'You are creating TRAINING CAPTIONS for Z-IMAGE character LoRA. Generate ONLY a unique trigger word/token for each image. This focuses all training energy on learning the character\'s unique features. Do NOT describe the character\'s appearance - the model will learn this automatically. Do NOT use conversational text or markdown. Output ONLY the trigger word.',
-    userPrompt: `Generate a single, unique trigger word/token for this character.
+      'You are creating TRAINING CAPTIONS for Z-IMAGE character LoRA using the "trigger only" method. Since the user has provided the trigger word in the Caption Prefix field, you should output NOTHING. The caption should be completely empty. The trigger word from the prefix is sufficient. Do NOT describe the character, do NOT repeat the trigger word, do NOT add any text. Output should be completely empty or just a single space.',
+    userPrompt: `IMPORTANT: Output an empty caption.
 
-Guidelines:
-- Use a distinctive, non-common word to avoid vocabulary collisions
-- Examples: "j0hnd0e", "alicechar", "cyb3rpunk_guy", "mystic_woman"
-- Can include underscores or numbers for uniqueness
-- Must be consistent across all images of the same character
-- Output ONLY the trigger word, nothing else
+The user has already set their trigger word in the "Caption Prefix" field above.
+For "trigger only" training, the caption should be empty - just the trigger word is used.
 
-Example outputs:
-"chr_alex"
-"m4r1a_character"
-"detective_jones"`,
+Output: (leave empty or output a single space)`,
     modelType: 'z-image',
     category: 'person',
   },
@@ -56,29 +49,31 @@ Example outputs:
   {
     id: 'z-image-character-context',
     name: 'Z-IMAGE Character LoRA (Trigger + Context)',
-    description: 'Trigger word + minimal context - excludes background/props from learning',
+    description: 'Use Caption Prefix for trigger word - caption describes context to exclude from learning',
     systemMessage:
-      'You are creating TRAINING CAPTIONS for Z-IMAGE character LoRA. Generate a trigger word followed by minimal context description. Caption what you DON\'T want the model to learn (background, props, temporary clothing) but DO NOT caption defining features you WANT it to learn (face, hair, body features). Keep it simple - 1 short sentence. Do NOT use markdown.',
-    userPrompt: `Generate a caption with this format: [trigger_word], [context elements to exclude]
+      'You are creating TRAINING CAPTIONS for Z-IMAGE character LoRA. The user has provided the trigger word in the Caption Prefix field. Generate ONLY the minimal context description. Caption what you DON\'T want the model to learn (background, props, temporary clothing) but DO NOT caption defining features you WANT it to learn (face, hair, body features). Keep it very short - just list context elements. Do NOT repeat the trigger word, do NOT use markdown.',
+    userPrompt: `Generate ONLY the context part of the caption (the trigger word is already in the Prefix field).
 
-What to caption:
-- Trigger word (must be first)
-- Background setting (to exclude from character learning)
-- Temporary props or objects (to exclude)
-- Non-defining clothing items (optional)
+Describe what to EXCLUDE from character learning:
+- Background setting (e.g., "office interior", "outdoor park", "studio")
+- Temporary props or objects (e.g., "holding coffee cup", "wearing sunglasses")
+- Non-defining clothing items if needed (e.g., "blue jacket")
+- Environmental context (e.g., "night scene", "rainy weather")
 
 What NOT to caption:
-- Character's face, hair, or defining physical features
-- Character's signature outfit or style
-- Character's unique attributes
+- DO NOT include trigger word (it's already in the prefix)
+- DO NOT describe character's face, hair, or defining physical features
+- DO NOT describe character's signature outfit or unique style
+- DO NOT describe character's unique attributes
 
-Examples:
-"j0hnd0e, office background, holding coffee cup"
-"alicechar, outdoor park setting, wearing glasses"
-"cyb3r_sam, city street, night scene"
-"m4r1a, indoor studio, plain background"
+Examples (context only, without trigger word):
+"office background, holding coffee cup"
+"outdoor park setting, wearing sunglasses"
+"city street, night scene"
+"indoor studio, plain white background"
+"forest setting, holding backpack"
 
-Keep it SHORT - the model learns character features automatically.`,
+Keep it VERY SHORT - just essential context to exclude.`,
     modelType: 'z-image',
     category: 'person',
   },
@@ -123,28 +118,30 @@ Describe it as if it's a regular photograph, even if it clearly isn't. The style
   {
     id: 'z-image-concept-lora',
     name: 'Z-IMAGE Concept LoRA',
-    description: 'For specific objects/props - associates visual features with text descriptions',
+    description: 'Use Caption Prefix for trigger word - caption provides detailed object/concept description',
     systemMessage:
-      'You are creating TRAINING CAPTIONS for Z-IMAGE concept LoRA. Generate captions that describe the specific object, prop, or concept you want to teach the model. Include a trigger word and describe the concept\'s appearance, context, and variations. Keep captions focused but descriptive (2-4 sentences). This helps the model associate visual features with text descriptions. Do NOT use markdown.',
-    userPrompt: `Generate a caption for this concept/object following this format:
+      'You are creating TRAINING CAPTIONS for Z-IMAGE concept LoRA. The user has provided the trigger word in the Caption Prefix field. Generate a focused, detailed description of the specific object, prop, or concept. Describe what the object IS, its key visual characteristics (color, shape, material, details), and context. Keep it descriptive but focused (2-4 sentences). Do NOT repeat the trigger word, do NOT use markdown.',
+    userPrompt: `Generate a detailed description of the concept/object (the trigger word is already in the Prefix field).
 
-[trigger_word] [detailed description of the concept]
+Describe:
+1. What the object/concept IS (the category/type)
+2. Key visual characteristics:
+   - Color, finish, material
+   - Shape, size, proportions
+   - Distinctive details, patterns, textures
+3. Context or usage (if visible in this image)
+4. Any variations specific to this image
 
-Structure:
-1. Start with a unique trigger word for this concept
-2. Describe what the object/concept IS
-3. Include key visual characteristics (color, shape, material, details)
-4. Mention context or how it's being used (if relevant)
-5. Note any variations in this specific image
+Examples (without trigger word):
+"a vintage rotary telephone with cream-colored plastic casing, round dial with numbers, sitting on a wooden desk"
 
-Examples:
-"retro_phone, a vintage rotary telephone with cream-colored plastic casing, round dial with numbers, sitting on a wooden desk"
+"an ornate wooden staff with glowing blue crystal at the top, intricate carved patterns along the shaft, held by a hand"
 
-"magic_staff, an ornate wooden staff with glowing blue crystal at the top, intricate carved patterns along the shaft, held by a hand"
+"futuristic motorcycle helmet with angular design, metallic silver finish, tinted blue visor, LED accent lights on the sides"
 
-"cyber_helmet, futuristic motorcycle helmet with angular design, metallic silver finish, tinted blue visor, LED accent lights on the sides"
+"hand-woven wicker basket with brown and tan pattern, curved handle, filled with red apples"
 
-Keep focused on the concept itself, not elaborate scene descriptions. The model needs to learn what THIS specific object/concept looks like.`,
+Keep focused on the concept itself, 2-4 sentences. The model needs to learn what THIS specific object looks like.`,
     modelType: 'z-image',
     category: 'general',
   },
