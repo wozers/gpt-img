@@ -16,6 +16,7 @@ import { ChevronDownIcon, ChevronUpIcon, WrenchIcon } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import APIKeyManager from '@/components/api-key-manager';
+import { captionTemplates, getTemplateById } from '@/lib/caption-templates';
 
 const openaiFormSchema = z.object({
   images: z.array(z.instanceof(File)).nonempty('At least one image is required.'),
@@ -25,6 +26,7 @@ const openaiFormSchema = z.object({
   userPrompt: z.string().optional(),
   model: z.string(),
   detail: z.enum(['auto', 'low', 'high']).optional(),
+  template: z.string().optional(),
 });
 
 type OpenAIFormValues = z.infer<typeof openaiFormSchema>;
@@ -57,8 +59,19 @@ export default function OpenAIForm({ initialApiKey, onApiKeyChange, onSubmit, on
       userPrompt: 'Describe this image, focusing on the main elements, style, and composition.',
       model: 'gpt-5-nano',
       detail: 'auto',
+      template: 'default-general',
     },
   });
+
+  // Handler for template changes
+  const handleTemplateChange = (templateId: string) => {
+    const template = getTemplateById(templateId);
+    if (template) {
+      form.setValue('template', templateId);
+      form.setValue('systemMessage', template.systemMessage);
+      form.setValue('userPrompt', template.userPrompt);
+    }
+  };
 
   const handleSubmit = async (data: OpenAIFormValues) => {
     if (data.images.length === 0) {
@@ -153,6 +166,72 @@ export default function OpenAIForm({ initialApiKey, onApiKeyChange, onSubmit, on
             <div className='mb-4'>
               <FormField
                 control={form.control}
+                name='template'
+                render={({ field }) => (
+                  <FormItem>
+                    <div className='flex items-center gap-2'>
+                      <FormLabel>Caption Template</FormLabel>
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <InfoIcon className='text-muted-foreground hover:text-primary h-4 w-4 cursor-help' />
+                          </TooltipTrigger>
+                          <TooltipContent className='max-w-[500px]'>
+                            <p className='mb-2 font-semibold'>Choose LoRA training caption style:</p>
+                            <p className='mb-2 text-xs italic'>
+                              💡 For Z-IMAGE templates: Put your trigger word in &quot;Caption Prefix&quot; below
+                              (e.g., &quot;j0hnd0e&quot; or &quot;retro_phone&quot;). Use the SAME trigger word for all
+                              images of the same character/concept.
+                            </p>
+                            <ul className='space-y-1 text-xs'>
+                              <li>
+                                <strong>Default:</strong> Standard captions (not optimized for Z-IMAGE)
+                              </li>
+                              <li>
+                                <strong>Z-IMAGE Character (Trigger Only):</strong> Caption will be empty - trigger word
+                                only (best for characters)
+                              </li>
+                              <li>
+                                <strong>Z-IMAGE Character (Trigger + Context):</strong> Caption describes background/props
+                                to exclude
+                              </li>
+                              <li>
+                                <strong>Z-IMAGE Style:</strong> Neutral descriptions without style keywords (no trigger
+                                needed)
+                              </li>
+                              <li>
+                                <strong>Z-IMAGE Concept:</strong> Detailed object descriptions (trigger word in prefix)
+                              </li>
+                            </ul>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                    </div>
+                    <Select onValueChange={handleTemplateChange} defaultValue={field.value}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder='Select template' />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {captionTemplates.map((template) => (
+                          <SelectItem key={template.id} value={template.id}>
+                            {template.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <p className='text-muted-foreground mt-1 text-xs'>
+                      {field.value && getTemplateById(field.value)?.description}
+                    </p>
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            <div className='mb-4'>
+              <FormField
+                control={form.control}
                 name='model'
                 render={({ field }) => (
                   <FormItem>
@@ -222,19 +301,25 @@ export default function OpenAIForm({ initialApiKey, onApiKeyChange, onSubmit, on
                           <TooltipTrigger asChild>
                             <InfoIcon className='text-muted-foreground hover:text-primary h-4 w-4 cursor-help' />
                           </TooltipTrigger>
-                          <TooltipContent className='max-w-[300px]'>
-                            <p>
+                          <TooltipContent className='max-w-[350px]'>
+                            <p className='mb-2'>
                               Text to add at the beginning of each caption. Commas and spaces will be handled
-                              automatically, so you can just enter the text.
+                              automatically.
+                            </p>
+                            <p className='text-xs font-semibold'>
+                              💡 For Z-IMAGE LoRA training: Use this field for your trigger word (e.g.,
+                              &quot;j0hnd0e&quot;, &quot;retro_phone&quot;). Same trigger for all images!
                             </p>
                           </TooltipContent>
                         </Tooltip>
                       </TooltipProvider>
                     </div>
                     <FormControl>
-                      <Input {...field} placeholder='Optional prefix...' />
+                      <Input {...field} placeholder='Optional prefix (or trigger word for Z-IMAGE LoRAs)...' />
                     </FormControl>
-                    <p className='text-muted-foreground mt-1 text-xs'>Example: &quot;CYBRPNK style&quot;</p>
+                    <p className='text-muted-foreground mt-1 text-xs'>
+                      General: &quot;CYBRPNK style&quot; | Z-IMAGE LoRA: &quot;j0hnd0e&quot;
+                    </p>
                     <FormMessage />
                   </FormItem>
                 )}
