@@ -37,16 +37,16 @@ export default function APIKeyManager({
   saveButtonText = 'Save API Key',
   removeButtonText = 'Remove Key',
 }: APIKeyManagerProps) {
-  const [apiKey, setApiKey] = useState('');
-  const [isKeySet, setIsKeySet] = useState(false);
+  const [apiKey, setApiKey] = useState(() =>
+    typeof window !== 'undefined' ? localStorage.getItem(localStorageKey) || '' : '',
+  );
+  const isKeySet = apiKey !== '';
   const [message, setMessage] = useState<{ text: string; type: 'success' | 'error' | '' }>({ text: '', type: '' });
   const [isOpen, setIsOpen] = useState(false);
 
   useEffect(() => {
     const storedApiKey = localStorage.getItem(localStorageKey);
     if (storedApiKey) {
-      setApiKey(storedApiKey);
-      setIsKeySet(true);
       onApiKeyChange(storedApiKey);
     }
   }, [localStorageKey, onApiKeyChange]);
@@ -63,7 +63,6 @@ export default function APIKeyManager({
     }
 
     localStorage.setItem(localStorageKey, apiKey);
-    setIsKeySet(true);
     setMessage({ text: 'API key saved successfully!', type: 'success' });
     onApiKeyChange(apiKey);
   };
@@ -71,7 +70,6 @@ export default function APIKeyManager({
   const handleRemoveApiKey = () => {
     localStorage.removeItem(localStorageKey);
     setApiKey('');
-    setIsKeySet(false);
     setMessage({ text: 'API key removed successfully.', type: 'success' });
     onApiKeyChange('');
   };
