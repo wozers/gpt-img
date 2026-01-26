@@ -28,6 +28,126 @@ export const captionTemplates: CaptionTemplate[] = [
     category: 'general',
   },
 
+  // FLUX 2 Character/Person LoRA
+  {
+    id: 'flux-2-character',
+    name: 'FLUX 2 Character/Person LoRA',
+    description: 'Detailed natural language for FLUX 2 (40-100 words) - use Caption Prefix for trigger word',
+    systemMessage:
+      'You are creating TRAINING CAPTIONS for FLUX 2 character LoRA. FLUX 2 uses Mistral-3 text encoder and understands detailed natural language exceptionally well. The user has provided the trigger word in the Caption Prefix field. Generate a detailed, natural language description in full sentences (40-100 words). Focus on precise details that matter for learning the character: age, physical features, clothing, expression, pose, lighting, and setting. Write naturally as if describing a photograph to someone, NOT as tag lists. Do NOT repeat the trigger word, do NOT use markdown.',
+    userPrompt: `Generate a detailed natural language description of this person (40-100 words).
+
+The trigger word is already in the Caption Prefix field.
+
+Write in full sentences describing:
+1. Age and demographic (e.g., "a young woman in her late twenties")
+2. Physical features in detail:
+   - Hair: color, length, style, texture
+   - Eyes: color, expression
+   - Skin: tone, notable features (freckles, etc.)
+   - Facial features: shape, distinguishing characteristics
+3. Clothing: specific items, colors, style, fit
+4. Expression and demeanor: emotion, gaze direction, posture
+5. Pose and body language: position, what they're doing
+6. Lighting: type, direction, quality (e.g., "soft natural window light")
+7. Background/setting: environment, depth, details
+
+Example style (DO NOT copy, adapt to the actual image):
+"A professional photograph of a young woman in her late twenties with shoulder-length brown hair styled in loose waves, warm brown eyes, fair skin with subtle freckles across her nose, wearing natural makeup with defined eyeliner, dressed in a casual navy blue sweater, looking directly at the camera with a gentle smile in soft natural window light against a blurred outdoor background."
+
+Write naturally, use full sentences, be specific and detailed. 40-100 words.`,
+    modelType: 'flux',
+    category: 'person',
+  },
+
+  // FLUX 2 Style LoRA
+  {
+    id: 'flux-2-style',
+    name: 'FLUX 2 Style LoRA',
+    description: 'Detailed natural language describing subjects without style keywords (40-100 words)',
+    systemMessage:
+      'You are creating TRAINING CAPTIONS for FLUX 2 style LoRA. FLUX 2 uses Mistral-3 text encoder and understands natural language exceptionally well. Describe what you see in detailed, natural language (40-100 words) WITHOUT mentioning the artistic style, medium, or visual aesthetic. Treat every image as if it\'s a normal photograph, even if it\'s clearly stylized, drawn, or painted. Write in full sentences. The model will learn the visual style automatically from the images themselves. Do NOT use markdown.',
+    userPrompt: `Describe what you see in natural, detailed language (40-100 words) WITHOUT mentioning style.
+
+Write in full sentences about:
+- The subject (person, object, animal, scene)
+- Their appearance, features, characteristics
+- Actions, poses, expressions
+- Clothing or attributes
+- Setting and environment
+- Composition and arrangement
+- Lighting and atmosphere
+
+DO NOT mention:
+- Artistic style (watercolor, anime, cartoon, illustration, etc.)
+- Medium (painting, drawing, digital art, 3D render, etc.)
+- Visual qualities (stylized, artistic, graphic, etc.)
+- Art movements (impressionist, art nouveau, cyberpunk aesthetic, etc.)
+
+Example:
+❌ "An anime-style illustration of a magical girl with pink hair in a fantasy setting with sparkles"
+✅ "A young woman with vibrant pink hair flowing past her shoulders, wearing an ornate white and pink dress with ribbons and bows, standing in a dreamy outdoor setting with floating light particles around her, one hand raised gracefully as she gazes upward with a gentle expression"
+
+Describe it as a photograph. Full sentences. Natural language. 40-100 words.`,
+    modelType: 'flux',
+    category: 'general',
+  },
+
+  // FLUX 2 Concept/Object LoRA
+  {
+    id: 'flux-2-concept',
+    name: 'FLUX 2 Concept/Object LoRA',
+    description: 'Detailed natural language for objects/concepts (40-100 words) - use Caption Prefix for trigger',
+    systemMessage:
+      'You are creating TRAINING CAPTIONS for FLUX 2 concept LoRA. FLUX 2 uses Mistral-3 text encoder and understands detailed natural language exceptionally well. The user has provided the trigger word in the Caption Prefix field. Generate a detailed, natural language description in full sentences (40-100 words) of the specific object, prop, or concept. Focus on what it IS, its visual characteristics, materials, colors, details, and context. Write as if describing it to someone who can\'t see it. Do NOT repeat the trigger word, do NOT use markdown.',
+    userPrompt: `Generate a detailed natural language description of this object/concept (40-100 words).
+
+The trigger word is already in the Caption Prefix field.
+
+Write in full sentences describing:
+1. What the object IS (category, type, purpose)
+2. Physical characteristics:
+   - Size, shape, proportions, structure
+   - Materials, textures, surface qualities
+   - Colors, finishes, patterns
+   - Distinctive details, features, embellishments
+3. Condition and quality (new, vintage, worn, pristine, etc.)
+4. Context: how it's positioned, being used, or displayed
+5. Surrounding elements if relevant to understanding the object
+
+Example style:
+"A vintage rotary telephone from the 1970s with a cream-colored plastic body and chrome rotary dial, featuring a curved handset resting in its cradle, round dial face with black numbers and finger holes, coiled cord connecting the handset, all sitting on a polished wooden desk surface with warm lighting highlighting its glossy finish and retro aesthetic."
+
+Natural sentences, specific details, 40-100 words.`,
+    modelType: 'flux',
+    category: 'general',
+  },
+
+  // FLUX 2 General
+  {
+    id: 'flux-2-general',
+    name: 'FLUX 2 General',
+    description: 'Detailed natural language for any subject (40-100 words)',
+    systemMessage:
+      'You are creating TRAINING CAPTIONS for FLUX 2. FLUX 2 uses Mistral-3 text encoder and understands detailed natural language exceptionally well. Generate a detailed, natural language description in full sentences (40-100 words). Describe what you see precisely: subjects, their characteristics, actions, settings, lighting, composition. Write as if you\'re describing the image to someone who can\'t see it. Use full sentences, not tag lists. Be specific and detailed. Do NOT use markdown.',
+    userPrompt: `Generate a detailed natural language description of this image (40-100 words).
+
+Write in full, natural sentences describing:
+- Main subjects: what/who they are, their appearance, characteristics
+- Actions, poses, expressions, interactions
+- Details: clothing, objects, specific features
+- Setting and environment: location, background, context
+- Lighting: type, direction, mood it creates
+- Composition: arrangement, framing, perspective
+- Atmosphere and mood
+
+Write like you're describing a photograph to someone. Full sentences. Specific details. Natural language.
+
+Target: 40-100 words. Too short misses details, too long dilutes key information.`,
+    modelType: 'flux',
+    category: 'general',
+  },
+
   // Z-IMAGE Character LoRA (Trigger Only)
   {
     id: 'z-image-character-trigger',

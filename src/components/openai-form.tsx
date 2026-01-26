@@ -176,31 +176,37 @@ export default function OpenAIForm({ initialApiKey, onApiKeyChange, onSubmit, on
                           <TooltipTrigger asChild>
                             <InfoIcon className='text-muted-foreground hover:text-primary h-4 w-4 cursor-help' />
                           </TooltipTrigger>
-                          <TooltipContent className='max-w-[500px]'>
+                          <TooltipContent className='max-w-[550px]'>
                             <p className='mb-2 font-semibold'>Choose LoRA training caption style:</p>
-                            <p className='mb-2 text-xs italic'>
-                              💡 For Z-IMAGE templates: Put your trigger word in &quot;Caption Prefix&quot; below
-                              (e.g., &quot;j0hnd0e&quot; or &quot;retro_phone&quot;). Use the SAME trigger word for all
-                              images of the same character/concept.
-                            </p>
+                            <div className='mb-3 space-y-1 rounded border border-blue-500/20 bg-blue-500/10 p-2 text-xs'>
+                              <p className='font-semibold text-blue-600'>FLUX 2 Templates:</p>
+                              <p>Detailed natural language (40-100 words). Put trigger word in Caption Prefix.</p>
+                            </div>
+                            <div className='mb-3 space-y-1 rounded border border-purple-500/20 bg-purple-500/10 p-2 text-xs'>
+                              <p className='font-semibold text-purple-600'>Z-IMAGE Templates:</p>
+                              <p>
+                                Minimal captions. Put trigger word in Caption Prefix (same for all images of same
+                                character).
+                              </p>
+                            </div>
                             <ul className='space-y-1 text-xs'>
                               <li>
-                                <strong>Default:</strong> Standard captions (not optimized for Z-IMAGE)
+                                <strong>FLUX 2 Character:</strong> Detailed person description (40-100 words)
                               </li>
                               <li>
-                                <strong>Z-IMAGE Character (Trigger Only):</strong> Caption will be empty - trigger word
-                                only (best for characters)
+                                <strong>FLUX 2 Style:</strong> Detailed without style keywords (40-100 words)
                               </li>
                               <li>
-                                <strong>Z-IMAGE Character (Trigger + Context):</strong> Caption describes background/props
-                                to exclude
+                                <strong>FLUX 2 Concept:</strong> Detailed object description (40-100 words)
                               </li>
                               <li>
-                                <strong>Z-IMAGE Style:</strong> Neutral descriptions without style keywords (no trigger
-                                needed)
+                                <strong>Z-IMAGE Character (Trigger Only):</strong> Empty caption - trigger only
                               </li>
                               <li>
-                                <strong>Z-IMAGE Concept:</strong> Detailed object descriptions (trigger word in prefix)
+                                <strong>Z-IMAGE Character (Context):</strong> Minimal context description
+                              </li>
+                              <li>
+                                <strong>Z-IMAGE Style:</strong> Neutral short descriptions
                               </li>
                             </ul>
                           </TooltipContent>
@@ -301,15 +307,15 @@ export default function OpenAIForm({ initialApiKey, onApiKeyChange, onSubmit, on
                           <TooltipTrigger asChild>
                             <InfoIcon className='text-muted-foreground hover:text-primary h-4 w-4 cursor-help' />
                           </TooltipTrigger>
-                          <TooltipContent className='max-w-[350px]'>
+                          <TooltipContent className='max-w-[380px]'>
                             <p className='mb-2'>
                               Text to add at the beginning of each caption. Commas and spaces will be handled
                               automatically.
                             </p>
-                            <p className='text-xs font-semibold'>
-                              💡 For Z-IMAGE LoRA training: Use this field for your trigger word (e.g.,
-                              &quot;j0hnd0e&quot;, &quot;retro_phone&quot;). Same trigger for all images!
-                            </p>
+                            <div className='space-y-1 text-xs font-semibold'>
+                              <p>💡 For FLUX 2 LoRA: Trigger word here (e.g., &quot;j0hnd0e&quot;)</p>
+                              <p>💡 For Z-IMAGE LoRA: Trigger word here - same for all images!</p>
+                            </div>
                           </TooltipContent>
                         </Tooltip>
                       </TooltipProvider>
@@ -318,7 +324,7 @@ export default function OpenAIForm({ initialApiKey, onApiKeyChange, onSubmit, on
                       <Input {...field} placeholder='Optional prefix (or trigger word for Z-IMAGE LoRAs)...' />
                     </FormControl>
                     <p className='text-muted-foreground mt-1 text-xs'>
-                      General: &quot;CYBRPNK style&quot; | Z-IMAGE LoRA: &quot;j0hnd0e&quot;
+                      General: &quot;CYBRPNK style&quot; | FLUX 2 / Z-IMAGE LoRA: &quot;j0hnd0e&quot;
                     </p>
                     <FormMessage />
                   </FormItem>
